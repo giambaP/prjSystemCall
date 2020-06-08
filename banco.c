@@ -123,14 +123,13 @@ void play()
             for (int i = 0; i < gameData->playersCount; i++)
             {
                 PlayerData p = gameData->playersData[i];
-                printf("- %s punta %d %s: %d %% di %d euro\n", p.playerName, p.currentBet, EXCHANGE, p.currentBetPercentage, p.currentMoney, EXCHANGE);
+                printf("- %-13s -> %d %s: %d %% di %d euro\n", p.playerName, p.currentBet, EXCHANGE, p.currentBetPercentage, p.currentMoney, EXCHANGE);
             }
             gameData->actionType = PLAY;
         }
         break;
         case PLAY:
         {
-            // se giocatore e banco hanno la stessa puntata allora vince il giocatore
             printf("Tiro dei dati:\n");
             nextPlayer(semId);
             pausePlayer(CROUPIER_SEM_NUM, semId);
@@ -138,12 +137,23 @@ void play()
             int firstDiceResult = randomValue(gameData->croupierCurrentMoney * 10, 1, 6);
             int secondDiceResult = randomValue(gameData->croupierCurrentMoney * 100, 1, 6);
             int totalDiceResult = firstDiceResult + secondDiceResult;
+
+            // showing dice result
+            printf("- %-13s ->  %d e %d, totale %d\n", "banco", firstDiceResult, secondDiceResult, totalDiceResult);
             for (int i = 0; i < gameData->playersCount; i++)
             {
                 PlayerData p = gameData->playersData[i];
-                printf("- %s punta %d %s: %d %% di %d\n", p.playerName, p.currentBet, EXCHANGE, p.currentBetPercentage, p.currentMoney);
+                printf("- %-13s ->  %d e %d, totale %d\n", p.playerName, p.firstDiceResult, p.secondDiceResult, p.totalDiceResult);
             }
-            pausePlayer(CROUPIER_SEM_NUM, semId); // TEMPORANEO
+
+            // calculating data
+            for (int i = 0; i < gameData->playersCount; i++)
+            { SEI ARRIVATO QUI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                PlayerData p = gameData->playersData[i]; 
+                printf("- %-13s ->  %d e %d, totale %d\n", p.playerName, p.firstDiceResult, p.secondDiceResult, p.totalDiceResult);
+            }
+
+            pausePlayer(CROUPIER_SEM_NUM, semId);
         }
         break;
         case LEAVE: // TODO definire una giocata minima!!! SENNO' NON FINIRA' MAI LA PARTITA (sempre il 50%)
