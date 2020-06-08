@@ -1,0 +1,38 @@
+{
+    "env": {
+        "myDefaultIncludePath": [
+            "C:/Cygwin/usr/include"
+        ],
+        "myCompilerPath": "C:/Cygwin/bin"
+    },
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:/Cygwin/usr/include"
+            ],
+            "defines": [
+                "${default}"
+            ],
+            "macFrameworkPath": [
+                "${default}"
+            ],
+            "forcedInclude": [
+                "${default}"
+            ],
+            "compileCommands": "${default}",
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${default}",
+                "path": [
+                    "${default}"
+                ]
+            },
+            "intelliSenseMode": "${default}",
+            "cStandard": "${default}",
+            "cppStandard": "${default}",
+            "compilerPath": "${default}"
+        }
+    ],
+    "version": 4
+}
