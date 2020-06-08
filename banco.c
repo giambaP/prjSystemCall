@@ -6,6 +6,7 @@
 
 void connectPlayers(int maxPlayersCount);
 void play();
+void nextPlayer(int semId);
 
 int main(int argc, char *argv[])
 {
@@ -72,15 +73,7 @@ void play()
 {
     GameData *gameData = getGameData();
 
-    // setting presentation action to players
-    printf("Diamo il benvenuto ai nostri giocatori!\n");
-
-    int semId = getSemId();
-
-    // start game
-    printf("incremento semaforo %d di 1 (semId=%d\n", (CROUPIER_SEM_NUM + 1), semId);
-    setSem(CROUPIER_SEM_NUM + 1, semId, 1);
-
+    // TODO to remove
     printf("-------------------------------------------\n");
     printf("BANCO [pid:%d, semnum:%d]\n", gameData->croupierPid, gameData->croupierSemNum);
     printf("      [croupierStartingMoney:%d]\n", gameData->croupierStartingMoney);
@@ -93,43 +86,81 @@ void play()
     printf("      [actionType:%d]\n", gameData->actionType);
     printf("-------------------------------------------\n");
 
+    int semId = getSemId();
+
+    // start game
+    nextPlayer(semId);
+    pausePlayer(CROUPIER_SEM_NUM, semId);
+
+    // TODO impostare uno stato di "nuovo player" nei dati giocatore: all'inizio metto tutti a nuovo e all'interno di questo for stampo solo quelli nuovi
+    // TODO e sposto questo parte di codice nel WELCOME
+    // presentation of players
+    printf("Diamo il benvenuto ai %d giocatori: \n", gameData->playersCount);
+    for (int i = 0; i < gameData->playersCount; i++)
+    {
+        PlayerData p = gameData->playersData[i];
+        printf("- %s con un bugdet di %d %s\n", p.playerName, p.currentMoney, EXCHANGE);
+    }
+    printf("Che il gioco inizi!!! \n");
+    printf("\n");
+    gameData->actionType = BET;
+
     while (1)
     {
-        pausePlayer(CROUPIER_SEM_NUM, semId);
-
-        while (1)
+        switch (gameData->actionType)
         {
-            switch (gameData->actionType)
+        case WELCOME:
+        {
+        }
+        break;
+        case BET:
+        {
+            gameData->totalPlayedGamesCount++;
+            printf("---->  Match n. %d  <----\n", gameData->totalPlayedGamesCount);
+            printf("I giocatori facciano la loro puntata:\n");
+            nextPlayer(semId);
+            pausePlayer(CROUPIER_SEM_NUM, semId);
+            for (int i = 0; i < gameData->playersCount; i++)
             {
-            case WELCOME:
-            {
-                printf("Diamo il benvenuto ai %d giocatori: \n", gameData->playersCount);
+                PlayerData p = gameData->playersData[i];
+                printf("- %s punta %d %s: %d %% di %d euro\n", p.playerName, p.currentBet, EXCHANGE, p.currentBetPercentage, p.currentMoney, EXCHANGE);
+            }
+            gameData->actionType = PLAY;
+        }
+        break;
+        case PLAY:
+        {
+            // se giocatore e banco hanno la stessa puntata allora vince il giocatore
+            printf("Tiro dei dati:\n");
+            nextPlayer(semId);
+            pausePlayer(CROUPIER_SEM_NUM, semId);
 
-                GameData *g = getGameData();
-                for (int i = 0; i < g->playersCount; i++)
-                {
-                    PlayerData p = gameData->playersData[i];
-                    printf("- %s con un bugdet di %d\n", p.playerName, p.currentMoney);
-                    // printf("- con un bugdet di %d\n", p->currentMoney);
-                }
-                pausePlayer(CROUPIER_SEM_NUM, semId); // TEMPORANEO
-            }
-            break;
-            case PLAY:
+            int firstDiceResult = randomValue(gameData->croupierCurrentMoney * 10, 1, 6);
+            int secondDiceResult = randomValue(gameData->croupierCurrentMoney * 100, 1, 6);
+            int totalDiceResult = firstDiceResult + secondDiceResult;
+            for (int i = 0; i < gameData->playersCount; i++)
             {
+                PlayerData p = gameData->playersData[i];
+                printf("- %s punta %d %s: %d %% di %d\n", p.playerName, p.currentBet, EXCHANGE, p.currentBetPercentage, p.currentMoney);
             }
-            break;
-            case LEAVE: // TODO definire una giocata minima!!! SENNO' NON FINIRA' MAI LA PARTITA (sempre il 50%)
-            {
-            }
-            break;
-            default:
-            {
-                char message[] = "Unsupported operation type with code %d!";
-                sprintf(message, message, gameData->actionType);
-                throwException(message);
-            }
-            }
+            pausePlayer(CROUPIER_SEM_NUM, semId); // TEMPORANEO
+        }
+        break;
+        case LEAVE: // TODO definire una giocata minima!!! SENNO' NON FINIRA' MAI LA PARTITA (sempre il 50%)
+        {
+        }
+        break;
+        default:
+        {
+            char message[] = "Unsupported operation type with code %d!";
+            sprintf(message, message, gameData->actionType);
+            throwException(message);
+        }
         }
     }
+}
+
+void nextPlayer(int semId)
+{
+    setSem(CROUPIER_SEM_NUM + 1, semId, 1);
 }
