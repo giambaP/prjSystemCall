@@ -99,7 +99,40 @@ void play()
     while (1)
     {
         pausePlayer(CROUPIER_SEM_NUM, semId);
-        printf("MI SONO SVEGLIATO!!\n");
-        // TODO
+
+        while (1)
+        {
+            switch (gameData->actionType)
+            {
+            case WELCOME:
+            {
+                printf("Diamo il benvuto ai %d giocatori: \n", gameData->playersCount);
+
+                GameData *g = getGameData();
+                for (int i = 0; i < g->playersCount; i++)
+                {
+                    // PlayerData p = gameData->playersData[i];
+                    // printf("- %s con un bugdet di %d\n", p->playerName, p->currentMoney);
+                    // printf("- con un bugdet di %d\n", p->currentMoney);
+                }
+                pausePlayer(CROUPIER_SEM_NUM, semId); // TEMPORANEO
+            }
+            break;
+            case PLAY:
+            {
+            }
+            break;
+            case LEAVE: // TODO definire una giocata minima!!! SENNO' NON FINIRA' MAI LA PARTITA (sempre il 50%)
+            {
+            }
+            break;
+            default:
+            {
+                char message[] = "Unsupported operation type with code %d!";
+                sprintf(message, message, gameData->actionType);
+                throwException(message);
+            }
+            }
+        }
     }
 }

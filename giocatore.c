@@ -47,7 +47,18 @@ int main(int argc, char *argv[])
     pd.losedGamesCount = 0;
     memcpy(gameData->playersData + semNumPlayer, &pd, sizeof(PlayerData));
 
-    PlayerData *playerData = gameData->playersData + semNumPlayer; // TO REMOVE
+    PlayerData *playerData = getGameData()->playersData + semNumPlayer; // TO REMOVE
+
+    if (semNumPlayer == 1)
+    {
+        int pid = fork();
+        if (pid == 0)
+        {
+            printf("ARRSIZE: %d\n", ARRSIZE(getGameData()->playersData));
+            sleep(8);
+            exit(0);
+        }
+    }
 
     int semId = getSemId();
 
@@ -57,9 +68,7 @@ int main(int argc, char *argv[])
         {
         case WELCOME:
         {
-            printf("decremento semaforo %d di 1 (semId=%d\n", semNumPlayer, semId);
             pausePlayer(semNumPlayer, semId);
-            printf("mi sono svegliato, action type %d!\n", gameData->actionType);
 
             printf("-------------------------------------------\n");
             printf("GIOCATORE %s [pid:%d, semnum:%d]\n", playerData->playerName, playerData->pid, playerData->semNum);
@@ -76,7 +85,6 @@ int main(int argc, char *argv[])
 
             // next player
             int nextSemNumPlayer = (semNumPlayer + 1) <= gameData->playersCount ? (semNumPlayer + 1) : 0;
-            printf("passo la palla al semaforo %d\n", nextSemNumPlayer);
             setSem(nextSemNumPlayer, semId, 1);
         }
         break;

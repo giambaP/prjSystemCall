@@ -7,9 +7,9 @@
             "command": "gcc",
             "args": [
                 "-g",
-                "${workspaceFolder}/main.c",
+                "${workspaceFolder}/banco.c",
                 "-o",
-                "${workspaceFolder}/bin/main"
+                "${workspaceFolder}/bin/banco"
             ],
             "group": {
                 "kind": "build",

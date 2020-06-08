@@ -1,15 +1,17 @@
 {
     "files.associations": {
-        "stddef.h": "c",
         "stdio.h": "c",
         "unistd.h": "c",
         "stdlib.h": "c",
         "errno.h": "c",
+        "string.h": "c",
         "sys/types.h": "c",
-        "sys/string.h": "c",
+        "stdbool.h": "c",
+        "time.h": "c",
         "sys/wait.h": "c",
         "sys/ipc.h": "c",
         "sys/shm.h": "c",
-        "sys/sem.h": "c"
+        "sys/sem.h": "c",
+        "sys/msg.h": "c"
     }
 }
