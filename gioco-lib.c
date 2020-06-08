@@ -21,7 +21,8 @@
 #define MINIMUM_BET 30
 #define MSG_QUEUE_SIZE 64
 #define MSG_TYPE_USER_MATCH 1
-#define MAX_DEFAULT_PLAYERS 1
+#define MAX_DEFAULT_PLAYERS 3
+#define EXCHANGE "euro"
 
 // msg structure
 typedef struct msgbuf
@@ -40,22 +41,27 @@ typedef enum actionType
 {
     INIT = 0,
     WELCOME = 1,
-    PLAY = 2,
-    LEAVE = 3
+    BET = 2,
+    PLAY = 3,
+    LEAVE = 4
 } PlayerActionType;
 typedef struct pdata
 {
-    unsigned int dataId;           // indice dati
-    int pid;                       // pid del giocatore
-    unsigned int semNum;           // numero semaforo del giocatore
-    char playerName[30];           // nome giocatore
-    unsigned int startingMoney;    // soldi iniziali
-    unsigned int currentMoney;     // soldi correnti
-    unsigned int currentBet;       // soldi scommessi in questa giocata
-    unsigned int finalMoney;       // soldi finali
-    unsigned int playedGamesCount; // partite giocate
-    unsigned int winnedGamesCount; // partite vinte
-    unsigned int losedGamesCount;  // partite perse
+    unsigned int dataId;               // indice dati
+    int pid;                           // pid del giocatore
+    unsigned int semNum;               // numero semaforo del giocatore
+    char playerName[30];               // nome giocatore
+    unsigned int startingMoney;        // soldi iniziali
+    unsigned int currentMoney;         // soldi correnti
+    unsigned int currentBet;           // soldi scommessi in questa giocata
+    unsigned int currentBetPercentage; // percentuale soldi scommessi in questa giocata rispetto a quelli correnti
+    unsigned int firstDiceResult;      // risultato primo dado di questa giocata
+    unsigned int secondDiceResult;     // risultato secondo dado di questa giocata
+    unsigned int totalDiceResult;      // risultato totale dadi di questa giocata
+    unsigned int finalMoney;           // soldi finali
+    unsigned int playedGamesCount;     // partite giocate
+    unsigned int winnedGamesCount;     // partite vinte
+    unsigned int losedGamesCount;      // partite perse
 } PlayerData;
 typedef struct gdata
 {
