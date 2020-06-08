@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     int startingMoney = randomValue(semNumPlayer, (int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY);
     GameData *gameData = getGameData();
     PlayerData pd;
-    pd.pid = getpid();
+    pd.pid = (int)getpid();
     pd.semNum = semNumPlayer;
     pd.playerName = playerPossibleNames[semNumPlayer];
     pd.startingMoney = startingMoney / 10 * 10; // TODO conti tondi per il momento
@@ -45,13 +45,11 @@ int main(int argc, char *argv[])
     pd.playedGamesCount = 0;
     pd.winnedGamesCount = 0;
     pd.losedGamesCount = 0;
-    memcpy((gameData->playersData + semNumPlayer), &pd, sizeof(PlayerData));
+    memcpy(gameData->playersData + semNumPlayer, &pd, sizeof(PlayerData));
 
     PlayerData *playerData = gameData->playersData + semNumPlayer; // TO REMOVE
 
     int semId = getSemId();
-
-    printf("ciao sono %s, con semNum %d e semNumPlayer %d\n", playerData->playerName, playerData->semNum, semNumPlayer);
 
     while (1)
     {
@@ -64,7 +62,7 @@ int main(int argc, char *argv[])
             printf("mi sono svegliato, action type %d!\n", gameData->actionType);
 
             printf("-------------------------------------------\n");
-            // printf("GIOCATORE %s [pid:%d, semnum:%d]\n", playerData->playerName, playerData->pid, playerData->semNum);
+            printf("GIOCATORE %s [pid:%d, semnum:%d]\n", playerData->playerName, playerData->pid, playerData->semNum);
             printf("             [startingMoney:%d]\n", playerData->startingMoney);
             printf("             [currentMoney:%d]\n", playerData->currentMoney);
             printf("             [currentBet:%d]\n", playerData->currentBet);
@@ -73,7 +71,8 @@ int main(int argc, char *argv[])
             printf("             [winnedGamesCount:%d]\n", playerData->winnedGamesCount);
             printf("             [losedGamesCount:%d]\n", playerData->losedGamesCount);
             printf("-------------------------------------------\n");
-            // printf("Ciao a tutti, sono %s e il mio budget è di %d euro. Buona partita a tutti\n", playerData->playerName, playerData->startingMoney);
+
+            printf("Ciao a tutti, sono %s e il mio budget è di %d euro. Buona partita a tutti\n", playerData->playerName, playerData->startingMoney);
 
             // next player
             int nextSemNumPlayer = (semNumPlayer + 1) <= gameData->playersCount ? (semNumPlayer + 1) : 0;

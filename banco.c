@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
     // setting game data
     int startingMoney = randomValue(CROUPIER_SEM_NUM, (int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY) * PLAYER_CROUPIER_MONEY_RATIO;
-    PlayerData playersData[maxPlayersCount];
+    PlayerData *playersData = (PlayerData *)malloc(sizeof(PlayerData[maxPlayersCount]));
     GameData gameData;
     gameData.croupierPid = getpid();
     gameData.croupierSemNum = CROUPIER_SEM_NUM;

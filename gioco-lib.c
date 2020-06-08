@@ -44,7 +44,7 @@ typedef enum actionType
 } PlayerActionType;
 typedef struct pdata
 {
-    unsigned int pid;              // pid del giocatore
+    int pid;                       // pid del giocatore
     unsigned int semNum;           // numero semaforo del giocatore
     char *playerName;              // nome giocatore
     unsigned int startingMoney;    // soldi iniziali
