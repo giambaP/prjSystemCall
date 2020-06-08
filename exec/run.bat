@@ -1,6 +1,6 @@
     @ECHO OFF
     clear
-    echo "parametri: 1:%1 e 2:%2"
+    REM echo "parametri: 1:%1 e 2:%2"
     call "%1" "%2"
     echo. 
     echo.

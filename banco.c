@@ -5,8 +5,6 @@
 #define CROUPIER_SEM_NUM 0
 #define PLAYER_CROUPIER_MONEY_RATIO 4 // definisce il rapporto tra i soldi del croupier e di ogni giocatore
 
-char *playerPossibleNames[] = {"Giovanni", "Pietro", "Arianna", "Tommaso", "Alice", "Michael", "Arturo", "Stefano", "Michele", "Giacomo", "Silvia", "Martina", "Lucrezia", "Filippo", "Giambattista", "Michael", "Tiziana", "Elia", "Sara", "Raffaele"};
-
 void connectPlayers(int maxPlayersCount);
 void play();
 
@@ -20,9 +18,6 @@ int main(int argc, char *argv[])
     }
     int maxPlayersCount = (argc == REQUIRED_INPUT_PARAMS ? atoi(argv[1]) : MAX_DEFAULT_PLAYERS);
     maxPlayersCount = maxPlayersCount > 0 ? maxPlayersCount : MAX_DEFAULT_PLAYERS;
-
-    // sorting list of players possible names
-    randomSort(playerPossibleNames, ARRSIZE(playerPossibleNames), sizeof(playerPossibleNames[0]));
 
     // TODO manage SIGNALS
 
@@ -39,8 +34,6 @@ int main(int argc, char *argv[])
     gameData.losedGamesCount = 0;
     gameData.playersCount = maxPlayersCount;
     gameData.playersData = playersData;
-    gameData.playerPossibleNames = playerPossibleNames;
-    gameData.usedNameIndex = maxPlayersCount;
     gameData.actionType = WELCOME;
 
     allocateShm(&gameData);
@@ -62,7 +55,7 @@ int main(int argc, char *argv[])
 
 void connectPlayers(int maxPlayersCount)
 {
-    printf("Ricerca giocatori...\n");
+    printf("Ricerca %d giocatori...\n", maxPlayersCount);
     for (int semNum = 1; semNum <= maxPlayersCount; semNum++)
     {
         char *msgReceived = (char *)malloc(sizeof(char));
@@ -88,22 +81,23 @@ void play()
     int semId = getSemId();
 
     // start game
+    printf("incremento semaforo %d di 1 (semId=%d\n", (CROUPIER_SEM_NUM + 1), semId);
     setSem(CROUPIER_SEM_NUM + 1, semId, 1);
+
+    printf("-------------------------------------------\n");
+    printf("BANCO [pid:%d, semnum:%d]\n", gameData->croupierPid, gameData->croupierSemNum);
+    printf("      [croupierStartingMoney:%d]\n", gameData->croupierStartingMoney);
+    printf("      [croupierCurrentMoney:%d]\n", gameData->croupierCurrentMoney);
+    printf("      [totalPlayedGamesCount:%d]\n", gameData->totalPlayedGamesCount);
+    printf("      [winnedGamesCount:%d]\n", gameData->winnedGamesCount);
+    printf("      [losedGamesCount:%d]\n", gameData->losedGamesCount);
+    printf("      [playersCount:%d]\n", gameData->playersCount);
+    printf("      [playersData:%d]\n", ARRSIZE(gameData->playersData));
+    printf("      [actionType:%d]\n", gameData->actionType);
+    printf("-------------------------------------------\n");
+    
     while (1)
     {
-        printf("-------------------------------------------\n");
-        printf("BANCO [pid:%d, semnum:%d]\n", gameData->croupierPid, gameData->croupierSemNum);
-        printf("      [croupierStartingMoney:%d]\n", gameData->croupierStartingMoney);
-        printf("      [croupierCurrentMoney:%d]\n", gameData->croupierCurrentMoney);
-        printf("      [totalPlayedGamesCount:%d]\n", gameData->totalPlayedGamesCount);
-        printf("      [winnedGamesCount:%d]\n", gameData->winnedGamesCount);
-        printf("      [losedGamesCount:%d]\n", gameData->losedGamesCount);
-        printf("      [playersCount:%d]\n", gameData->playersCount);
-        printf("      [playersData:%d]\n", ARRSIZE(gameData->playersData));
-        printf("      [actionType:%d]\n", gameData->actionType);
-        printf("      [usedNameIndex:%d]\n", gameData->usedNameIndex);
-        printf("-------------------------------------------\n");
-
         pausePlayer(CROUPIER_SEM_NUM, semId);
         // TODO
     }

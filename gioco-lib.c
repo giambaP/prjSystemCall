@@ -46,7 +46,7 @@ typedef struct pdata
 {
     unsigned int pid;              // pid del giocatore
     unsigned int semNum;           // numero semaforo del giocatore
-    char playerName[30];           // nome giocatore
+    char *playerName;              // nome giocatore
     unsigned int startingMoney;    // soldi iniziali
     unsigned int currentMoney;     // soldi correnti
     unsigned int currentBet;       // soldi scommessi in questa giocata
@@ -67,8 +67,6 @@ typedef struct gdata
     unsigned int playersCount;          // contatore giocatori
     PlayerData *playersData;            // contiene i dati di tutti i giocatori
     PlayerActionType actionType;        // definisce il tipo di azione che deve fare il giocatore
-    char **playerPossibleNames;         // lista dei possibili nomi dei giocatori
-    unsigned int usedNameIndex;         // identifica l'indice dell'ultimo nome giocatore usato
 } GameData;
 
 void printTitle()
