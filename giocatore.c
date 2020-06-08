@@ -38,9 +38,9 @@ int main(int argc, char *argv[])
     pd.dataId = semNumPlayer - 1;
     pd.pid = (int)getpid();
     pd.semNum = semNumPlayer;
-    strncpy(pd.playerName, playerPossibleNames[semNumPlayer], sizeof(char[30]));
+    strncpy(pd.playerName, playerPossibleNames[semNumPlayer], sizeof(playerPossibleNames[semNumPlayer]));
     pd.startingMoney = startingMoney / 10 * 10; // TODO conti tondi per il momento
-    pd.currentMoney = startingMoney;
+    pd.currentMoney = pd.startingMoney;
     pd.currentBet = 0;
     pd.finalMoney = 0;
     pd.playedGamesCount = 0;
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     pd.losedGamesCount = 0;
     memcpy(gameData->playersData + pd.dataId, &pd, sizeof(PlayerData));
 
-    PlayerData *playerData = getGameData()->playersData + pd.dataId; // TO REMOVE
+    PlayerData *playerData = gameData->playersData + pd.dataId; // TO REMOVE
 
     int semId = getSemId();
 
