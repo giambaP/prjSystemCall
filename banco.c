@@ -1,7 +1,6 @@
 #include "gioco-lib.c"
 
 #define REQUIRED_INPUT_PARAMS 2
-#define MAX_DEFAULT_PLAYERS 1
 #define CROUPIER_SEM_NUM 0
 #define PLAYER_CROUPIER_MONEY_RATIO 4 // definisce il rapporto tra i soldi del croupier e di ogni giocatore
 
@@ -10,20 +9,19 @@ void play();
 
 int main(int argc, char *argv[])
 {
-    if (argc != 1 && argc != REQUIRED_INPUT_PARAMS)
-    {
-        fprintf(stderr, "Numero parametri input non corretto! Attesi: %d, Trovati: %d\n", REQUIRED_INPUT_PARAMS, argc);
-        fprintf(stderr, "Programma terminato!\n");
-        exit(1);
-    }
-    int maxPlayersCount = (argc == REQUIRED_INPUT_PARAMS ? atoi(argv[1]) : MAX_DEFAULT_PLAYERS);
-    maxPlayersCount = maxPlayersCount > 0 ? maxPlayersCount : MAX_DEFAULT_PLAYERS;
+    // if (argc != 1 && argc != REQUIRED_INPUT_PARAMS)
+    // {
+    //     fprintf(stderr, "Numero parametri input non corretto! Attesi: %d, Trovati: %d\n", REQUIRED_INPUT_PARAMS, argc);
+    //     fprintf(stderr, "Programma terminato!\n");
+    //     exit(1);
+    // }
+    // int maxPlayersCount = (argc == REQUIRED_INPUT_PARAMS ? atoi(argv[1]) : MAX_DEFAULT_PLAYERS);
+    // maxPlayersCount = maxPlayersCount > 0 ? maxPlayersCount : MAX_DEFAULT_PLAYERS;
 
     // TODO manage SIGNALS
 
     // setting game data
     int startingMoney = randomValue(CROUPIER_SEM_NUM, (int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY) * PLAYER_CROUPIER_MONEY_RATIO;
-    PlayerData *playersData = (PlayerData *)malloc(sizeof(PlayerData[maxPlayersCount]));
     GameData gameData;
     gameData.croupierPid = getpid();
     gameData.croupierSemNum = CROUPIER_SEM_NUM;
@@ -32,16 +30,15 @@ int main(int argc, char *argv[])
     gameData.totalPlayedGamesCount = 0;
     gameData.winnedGamesCount = 0;
     gameData.losedGamesCount = 0;
-    gameData.playersCount = maxPlayersCount;
-    gameData.playersData = playersData;
+    gameData.playersCount = MAX_DEFAULT_PLAYERS; // TO REMOVE
     gameData.actionType = WELCOME;
 
     allocateShm(&gameData);
-    allocateSem(maxPlayersCount + 1); // +1 -> croupier
+    allocateSem(MAX_DEFAULT_PLAYERS + 1); // +1 -> croupier
     allocateMsgQueue();
 
     printTitle();
-    connectPlayers(maxPlayersCount);
+    connectPlayers(MAX_DEFAULT_PLAYERS); // TO REMOVE INPUT PARAMETERS -> use directly MAX_DEFAULT_PLAYERS
 
     play();
 
@@ -106,13 +103,13 @@ void play()
             {
             case WELCOME:
             {
-                printf("Diamo il benvuto ai %d giocatori: \n", gameData->playersCount);
+                printf("Diamo il benvenuto ai %d giocatori: \n", gameData->playersCount);
 
                 GameData *g = getGameData();
                 for (int i = 0; i < g->playersCount; i++)
                 {
-                    // PlayerData p = gameData->playersData[i];
-                    // printf("- %s con un bugdet di %d\n", p->playerName, p->currentMoney);
+                    PlayerData p = gameData->playersData[i];
+                    printf("- %s con un bugdet di %d\n", p.playerName, p.currentMoney);
                     // printf("- con un bugdet di %d\n", p->currentMoney);
                 }
                 pausePlayer(CROUPIER_SEM_NUM, semId); // TEMPORANEO

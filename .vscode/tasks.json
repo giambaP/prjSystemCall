@@ -3,7 +3,7 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "build",
+            "label": "build BANCO",
             "command": "gcc",
             "args": [
                 "-g",
@@ -16,11 +16,20 @@
                 "isDefault": true
             },
         },
-        // {
-        //     "label": "cygwin server",
-        //     "type": "shell",
-        //     "command": "C:/Cygwin/usr/sbin/cygserver.exe",
-        //     "args": []
-        // }
+        {
+            "type": "shell",
+            "label": "build GIOCATORE",
+            "command": "gcc",
+            "args": [
+                "-g",
+                "${workspaceFolder}/giocatore.c",
+                "-o",
+                "${workspaceFolder}/bin/giocatore"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+        }
     ],
 }

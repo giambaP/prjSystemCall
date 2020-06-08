@@ -21,6 +21,7 @@
 #define MINIMUM_BET 30
 #define MSG_QUEUE_SIZE 64
 #define MSG_TYPE_USER_MATCH 1
+#define MAX_DEFAULT_PLAYERS 1
 
 // msg structure
 typedef struct msgbuf
@@ -44,9 +45,10 @@ typedef enum actionType
 } PlayerActionType;
 typedef struct pdata
 {
+    unsigned int dataId;           // indice dati
     int pid;                       // pid del giocatore
     unsigned int semNum;           // numero semaforo del giocatore
-    char *playerName;              // nome giocatore
+    char playerName[30];           // nome giocatore
     unsigned int startingMoney;    // soldi iniziali
     unsigned int currentMoney;     // soldi correnti
     unsigned int currentBet;       // soldi scommessi in questa giocata
@@ -57,16 +59,16 @@ typedef struct pdata
 } PlayerData;
 typedef struct gdata
 {
-    unsigned int croupierPid;           // pid del banco
-    unsigned int croupierSemNum;        // numero semaforo del banco
-    unsigned int croupierStartingMoney; // soldi iniziali
-    unsigned int croupierCurrentMoney;  // soldi correnti
-    unsigned int totalPlayedGamesCount; // partite giocate
-    unsigned int winnedGamesCount;      // partite vinte
-    unsigned int losedGamesCount;       // partite perse
-    unsigned int playersCount;          // contatore giocatori
-    PlayerData *playersData;            // contiene i dati di tutti i giocatori
-    PlayerActionType actionType;        // definisce il tipo di azione che deve fare il giocatore
+    unsigned int croupierPid;                    // pid del banco
+    unsigned int croupierSemNum;                 // numero semaforo del banco
+    unsigned int croupierStartingMoney;          // soldi iniziali
+    unsigned int croupierCurrentMoney;           // soldi correnti
+    unsigned int totalPlayedGamesCount;          // partite giocate
+    unsigned int winnedGamesCount;               // partite vinte
+    unsigned int losedGamesCount;                // partite perse
+    unsigned int playersCount;                   // contatore giocatori
+    PlayerData playersData[MAX_DEFAULT_PLAYERS]; // contiene i dati di tutti i giocatori
+    PlayerActionType actionType;                 // definisce il tipo di azione che deve fare il giocatore
 } GameData;
 
 void printTitle()
@@ -188,9 +190,10 @@ GameData *getGameData()
         strcat(res, message);
         throwException(message);
     }
-    GameData *res = (GameData *)malloc(sizeof(GameData));
-    memcpy(res, p, sizeof(GameData));
-    return res;
+    // GameData *res = (GameData *)malloc(sizeof(GameData));
+    // memcpy(res, p, sizeof(GameData));
+    // return res;
+    return p;
 }
 
 void unallocateShm(bool skipLog)

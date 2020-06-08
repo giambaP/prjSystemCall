@@ -35,9 +35,10 @@ int main(int argc, char *argv[])
     int startingMoney = randomValue(semNumPlayer, (int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY);
     GameData *gameData = getGameData();
     PlayerData pd;
+    pd.dataId = semNumPlayer - 1;
     pd.pid = (int)getpid();
     pd.semNum = semNumPlayer;
-    pd.playerName = playerPossibleNames[semNumPlayer];
+    strncpy(pd.playerName, playerPossibleNames[semNumPlayer], sizeof(char[30]));
     pd.startingMoney = startingMoney / 10 * 10; // TODO conti tondi per il momento
     pd.currentMoney = startingMoney;
     pd.currentBet = 0;
@@ -45,20 +46,9 @@ int main(int argc, char *argv[])
     pd.playedGamesCount = 0;
     pd.winnedGamesCount = 0;
     pd.losedGamesCount = 0;
-    memcpy(gameData->playersData + semNumPlayer, &pd, sizeof(PlayerData));
+    memcpy(gameData->playersData + pd.dataId, &pd, sizeof(PlayerData));
 
-    PlayerData *playerData = getGameData()->playersData + semNumPlayer; // TO REMOVE
-
-    if (semNumPlayer == 1)
-    {
-        int pid = fork();
-        if (pid == 0)
-        {
-            printf("ARRSIZE: %d\n", ARRSIZE(getGameData()->playersData));
-            sleep(8);
-            exit(0);
-        }
-    }
+    PlayerData *playerData = getGameData()->playersData + pd.dataId; // TO REMOVE
 
     int semId = getSemId();
 
@@ -81,7 +71,7 @@ int main(int argc, char *argv[])
             printf("             [losedGamesCount:%d]\n", playerData->losedGamesCount);
             printf("-------------------------------------------\n");
 
-            printf("Ciao a tutti, sono %s e il mio budget è di %d euro. Buona partita a tutti\n", playerData->playerName, playerData->startingMoney);
+            // printf("Ciao a tutti, sono %s e il mio budget è di %d euro. Buona partita a tutti\n", playerData->playerName, playerData->startingMoney);
 
             // next player
             int nextSemNumPlayer = (semNumPlayer + 1) <= gameData->playersCount ? (semNumPlayer + 1) : 0;
