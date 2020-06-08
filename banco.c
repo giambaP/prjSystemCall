@@ -95,10 +95,11 @@ void play()
     printf("      [playersData:%d]\n", ARRSIZE(gameData->playersData));
     printf("      [actionType:%d]\n", gameData->actionType);
     printf("-------------------------------------------\n");
-    
+
     while (1)
     {
         pausePlayer(CROUPIER_SEM_NUM, semId);
+        printf("MI SONO SVEGLIATO!!\n");
         // TODO
     }
 }

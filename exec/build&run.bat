@@ -32,7 +32,7 @@ echo "build completed!"
 
 REM EXECUTION
 
-set PLAYERS_COUNT=1
+set PLAYERS_COUNT=2
 
 echo "starting banco.."
 start "BANCO" ..\exec\run.bat "banco.exe" %PLAYERS_COUNT% || goto SOMETHING_WRONG

@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
             printf("mi sono svegliato, action type %d!\n", gameData->actionType);
 
             printf("-------------------------------------------\n");
-            printf("GIOCATORE %s [pid:%d, semnum:%d]\n", playerData->playerName, playerData->pid, playerData->semNum);
+            // printf("GIOCATORE %s [pid:%d, semnum:%d]\n", playerData->playerName, playerData->pid, playerData->semNum);
             printf("             [startingMoney:%d]\n", playerData->startingMoney);
             printf("             [currentMoney:%d]\n", playerData->currentMoney);
             printf("             [currentBet:%d]\n", playerData->currentBet);
@@ -73,10 +73,10 @@ int main(int argc, char *argv[])
             printf("             [winnedGamesCount:%d]\n", playerData->winnedGamesCount);
             printf("             [losedGamesCount:%d]\n", playerData->losedGamesCount);
             printf("-------------------------------------------\n");
-            printf("Ciao a tutti, sono %s e il mio budget è di %d euro. Buona partita a tutti\n", playerData->playerName, playerData->startingMoney);
+            // printf("Ciao a tutti, sono %s e il mio budget è di %d euro. Buona partita a tutti\n", playerData->playerName, playerData->startingMoney);
 
             // next player
-            int nextSemNumPlayer = (semNumPlayer + 1) < gameData->playersCount ? (semNumPlayer + 1) : 0;
+            int nextSemNumPlayer = (semNumPlayer + 1) <= gameData->playersCount ? (semNumPlayer + 1) : 0;
             printf("passo la palla al semaforo %d\n", nextSemNumPlayer);
             setSem(nextSemNumPlayer, semId, 1);
         }
