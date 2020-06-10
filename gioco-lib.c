@@ -16,8 +16,8 @@
 #define KEY_ID 100
 #define READ_CLEARANCE 0777 // TODO rimuovere
 #define CROUPIER_SEM_NUM 0
-#define MAX_INIT_PLAYER_MONEY 500
-#define MIN_INIT_PLAYER_MONEY 200
+#define MAX_INIT_PLAYER_MONEY 30
+#define MIN_INIT_PLAYER_MONEY 20
 #define ARRSIZE(x) (sizeof(x) / sizeof(x[0]))
 #define MINIMUM_BET 30
 #define MSG_QUEUE_SIZE 128

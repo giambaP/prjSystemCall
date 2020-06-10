@@ -90,19 +90,20 @@ void play()
 {
     GameData *gameData = getGameData();
 
-    // TODO to remove
-    printf("-------------------------------------------\n");
-    printf("BANCO [pid:%d, semnum:%d]\n", gameData->croupierPid, gameData->croupierSemNum);
-    printf("      [croupierStartingMoney:%d]\n", gameData->croupierStartingMoney);
-    printf("      [croupierCurrentMoney:%d]\n", gameData->croupierCurrentMoney);
-    printf("      [totalPlayedGamesCount:%d]\n", gameData->totalPlayedGamesCount);
-    printf("      [winnedGamesCount:%d]\n", gameData->winnedGamesCount);
-    printf("      [losedGamesCount:%d]\n", gameData->losedGamesCount);
-    printf("      [playersData:%lu]\n", ARRSIZE(gameData->playersData));
-    printf("      [actionType:%d]\n", gameData->actionType);
-    printf("-------------------------------------------\n");
+    // // TODO to remove
+    // printf("-------------------------------------------\n");
+    // printf("BANCO [pid:%d, semnum:%d]\n", gameData->croupierPid, gameData->croupierSemNum);
+    // printf("      [croupierStartingMoney:%d]\n", gameData->croupierStartingMoney);
+    // printf("      [croupierCurrentMoney:%d]\n", gameData->croupierCurrentMoney);
+    // printf("      [totalPlayedGamesCount:%d]\n", gameData->totalPlayedGamesCount);
+    // printf("      [winnedGamesCount:%d]\n", gameData->winnedGamesCount);
+    // printf("      [losedGamesCount:%d]\n", gameData->losedGamesCount);
+    // printf("      [playersData:%lu]\n", ARRSIZE(gameData->playersData));
+    // printf("      [actionType:%d]\n", gameData->actionType);
+    // printf("-------------------------------------------\n");
 
     int semId = getSemId();
+    printf("Banco impostato: totale cassa %d %s\n", gameData->croupierCurrentMoney, EXCHANGE);
 
     bool loop = true;
     while (loop == true)
@@ -198,6 +199,7 @@ void play()
             {
                 // printing results
                 printf("\nRisultato round %d\n", gameData->totalPlayedGamesCount);
+                printf("|- %-13s-> %d %s\n", "banco", gameData->croupierCurrentMoney, EXCHANGE);
                 bool playerFailureCount = 0;
                 for (int i = 0; i < MAX_DEFAULT_PLAYERS; i++)
                 {
@@ -206,7 +208,7 @@ void play()
                     {
                     case WINNED:
                     {
-                        printf("|- %-13s-> vince %d: ora possiede %d %s\n", p->playerName, p->currentBetPercentage * PLAYER_PLAYER_WIN_RATIO, p->currentMoney, EXCHANGE);
+                        printf("|- %-13s-> vince %d: ora possiede %d %s\n", p->playerName, p->currentBet * PLAYER_PLAYER_WIN_RATIO, p->currentMoney, EXCHANGE);
                     }
                     break;
                     case LOSED:
@@ -234,7 +236,7 @@ void play()
                 }
 
                 printf("\n=========>  ROUND N. %d TERMINATO <=========\n", gameData->totalPlayedGamesCount);
-                sleep(5);
+                sleep(3);
 
                 // searching for new players in case of players failure
                 if (playerFailureCount > 0)
@@ -257,9 +259,14 @@ void play()
                         }
                     }
                     printf("Ricerca completata.\n");
+                    gameData->actionType = WELCOME;
+                }
+                // continue to bet
+                else
+                {
+                    gameData->actionType = BET;
                 }
             }
-            gameData->actionType = WELCOME;
         }
         break;
         case LEAVE:
