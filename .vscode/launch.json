@@ -58,6 +58,27 @@
                 "engineLogging": true
             }, //optional
             "preLaunchTask": "build GIOCATORE"
+        },
+        {
+            "name": "build,run BANCO linux",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/banco",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build BANCO linux"            
         }
     ]
 }

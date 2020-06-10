@@ -10,6 +10,7 @@ void nextPlayer(int semId, int semNumPlayer, int playersCount);
 int main(int argc, char *argv[])
 {
     printf("Ricerca partita...\n");
+    printf("IL MIO PID = %d\n", getpid());
 
     // waiting message queue creation
     bool skipEEXISTError = true;

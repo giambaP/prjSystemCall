@@ -30,6 +30,37 @@
                 "kind": "build",
                 "isDefault": true
             },
+        },
+        {
+            "label": "build BANCO linux",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-g",
+                "${workspaceFolder}/banco.c",
+                "-o",
+                "${workspaceFolder}/bin/banco"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+        },
+        {
+            "label": "build GIOCATORE linux",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-g",
+                "${workspaceFolder}/giocatore.c",
+                "-o",
+                "${workspaceFolder}/bin/giocatore"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
         }
+
     ],
 }

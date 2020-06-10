@@ -12,16 +12,16 @@
 #include <sys/sem.h>
 #include <sys/msg.h>
 
-#define SEM_KEY_PATH "/dev/null"
-#define SEM_KEY_ID 100
+#define KEY_PATH "/dev/null"
+#define KEY_ID 100
 #define READ_CLEARANCE 0777 // TODO rimuovere
 #define MAX_INIT_PLAYER_MONEY 500
 #define MIN_INIT_PLAYER_MONEY 200
 #define ARRSIZE(x) (sizeof(x) / sizeof(x[0]))
 #define MINIMUM_BET 30
-#define MSG_QUEUE_SIZE 64
+#define MSG_QUEUE_SIZE 128
 #define MSG_TYPE_USER_MATCH 1
-#define MAX_DEFAULT_PLAYERS 3
+#define MAX_DEFAULT_PLAYERS 1
 #define EXCHANGE "euro"
 
 // msg structure
@@ -93,7 +93,7 @@ void throwException(char *message)
 
 key_t getKey()
 {
-    key_t key = ftok(SEM_KEY_PATH, SEM_KEY_ID);
+    key_t key = ftok(KEY_PATH, KEY_ID);
     if (key == (key_t)-1)
     {
         throwException("Cannot retrieve key: error during ftok generation!");
@@ -333,26 +333,29 @@ int sendMsgQueue(int msgType, char *message)
 {
     message_buf msgBuf;
     msgBuf.mtype = msgType;
-    sprintf(msgBuf.mtext, message);
+    sprintf(msgBuf.mtext, "%s", message);
 
     int msqId = getMsgQueueId(false);
-    int msgsndRes = msgsnd(msqId, &msgBuf, sizeof(message_buf), 0);
+    printf("MESSAGE: sending message\n");
+    int msgsndRes = msgsnd(msqId, &msgBuf, sizeof(msgBuf.mtext), READ_CLEARANCE);
     if (msgsndRes < 0)
     {
         throwException("sendMsgQueue");
     }
+    printf("MESSAGE: message sent\n");
 }
 
 void receiveMsgQueue(int msgType, char *receivedMessage)
 {
     message_buf msgBuf;
     int msqId = getMsgQueueId(false);
-    int msgRcvRes = msgrcv(msqId, &msgBuf, MSG_QUEUE_SIZE, msgType, READ_CLEARANCE);
+    int msgRcvRes = msgrcv(msqId, &msgBuf, sizeof(msgBuf.mtext), msgType, READ_CLEARANCE);
+    printf("eseguito msgrcv con codice %d\n", msgRcvRes);
     if (msgRcvRes == -1)
     {
         throwException("receiveMsgQueue");
     }
-    sprintf(receivedMessage, msgBuf.mtext);
+    sprintf(receivedMessage, "%s", msgBuf.mtext);
 }
 
 void unallocateMsgQueue()

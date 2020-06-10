@@ -41,6 +41,8 @@ int main(int argc, char *argv[])
     printTitle();
     connectPlayers(MAX_DEFAULT_PLAYERS); // TO REMOVE INPUT PARAMETERS -> use directly MAX_DEFAULT_PLAYERS
 
+    printf("MESSAGE: players connected\n");
+
     play();
 
     // TODO manage error on signal
@@ -53,16 +55,18 @@ int main(int argc, char *argv[])
 
 void connectPlayers(int maxPlayersCount)
 {
+    printf("IL MIO PID = %d\n", getpid());
     printf("Ricerca %d giocatori...\n", maxPlayersCount);
     for (int semNum = 1; semNum <= maxPlayersCount; semNum++)
-    {
-        char *msgReceived = (char *)malloc(sizeof(char));
+    {   
+        char *msgReceived = (char *)malloc(sizeof(MSG_QUEUE_SIZE));
         receiveMsgQueue(MSG_TYPE_USER_MATCH, msgReceived);
         int playerPid = atoi(msgReceived);
         free(msgReceived);
 
-        char *msgSent = (char *)malloc(sizeof(char));
+        char *msgSent = (char *)malloc(sizeof(MSG_QUEUE_SIZE));
         sprintf(msgSent, "%d", semNum);
+        printf("MESSAGE: sending message to giocatore -> %s\n", msgSent);
         sendMsgQueue(playerPid, msgSent);
         free(msgSent);
     }
@@ -82,7 +86,7 @@ void play()
     printf("      [winnedGamesCount:%d]\n", gameData->winnedGamesCount);
     printf("      [losedGamesCount:%d]\n", gameData->losedGamesCount);
     printf("      [playersCount:%d]\n", gameData->playersCount);
-    printf("      [playersData:%d]\n", ARRSIZE(gameData->playersData));
+    printf("      [playersData:%lu]\n", ARRSIZE(gameData->playersData));
     printf("      [actionType:%d]\n", gameData->actionType);
     printf("-------------------------------------------\n");
 
@@ -123,7 +127,7 @@ void play()
             for (int i = 0; i < gameData->playersCount; i++)
             {
                 PlayerData p = gameData->playersData[i];
-                printf("- %-13s -> %d %s: %d %% di %d euro\n", p.playerName, p.currentBet, EXCHANGE, p.currentBetPercentage, p.currentMoney, EXCHANGE);
+                printf("- %-13s -> %d %s: %d %% di %d %s\n", p.playerName, p.currentBet, EXCHANGE, p.currentBetPercentage, p.currentMoney, EXCHANGE);
             }
             gameData->actionType = PLAY;
         }
@@ -148,8 +152,8 @@ void play()
 
             // calculating data
             for (int i = 0; i < gameData->playersCount; i++)
-            { SEI ARRIVATO QUI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                PlayerData p = gameData->playersData[i]; 
+            {
+                PlayerData p = gameData->playersData[i];
                 printf("- %-13s ->  %d e %d, totale %d\n", p.playerName, p.firstDiceResult, p.secondDiceResult, p.totalDiceResult);
             }
 
