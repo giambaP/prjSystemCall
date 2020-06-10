@@ -22,7 +22,7 @@
 #define MINIMUM_BET 30
 #define MSG_QUEUE_SIZE 128
 #define MSG_TYPE_USER_MATCH 1
-#define MAX_DEFAULT_PLAYERS 2
+#define MAX_DEFAULT_PLAYERS 1
 #define EXCHANGE "euro"
 
 // msg structure
@@ -92,14 +92,6 @@ typedef struct gdata
     PlayerData playersData[MAX_DEFAULT_PLAYERS]; // contiene i dati di tutti i giocatori
     PlayerActionType actionType;                 // definisce il tipo di azione che deve fare il giocatore
 } GameData;
-
-void printTitle()
-{
-    printf("\n");
-    printf("**************************************\n");
-    printf("****     BENVENUTI AL CASINO'     ****\n");
-    printf("**************************************\n");
-}
 
 void throwException(char *message)
 {
@@ -212,9 +204,6 @@ GameData *getGameData()
         strcat(res, message);
         throwException(message);
     }
-    // GameData *res = (GameData *)malloc(sizeof(GameData));
-    // memcpy(res, p, sizeof(GameData));
-    // return res;
     return p;
 }
 
@@ -352,13 +341,11 @@ int sendMsgQueue(int msgType, char *message)
     sprintf(msgBuf.mtext, "%s", message);
 
     int msqId = getMsgQueueId(false);
-    printf("MESSAGE: sending message\n");
     int msgsndRes = msgsnd(msqId, &msgBuf, sizeof(msgBuf.mtext), READ_CLEARANCE);
     if (msgsndRes < 0)
     {
         throwException("sendMsgQueue");
     }
-    printf("MESSAGE: message sent\n");
 }
 
 void receiveMsgQueue(int msgType, char *receivedMessage)
@@ -366,7 +353,6 @@ void receiveMsgQueue(int msgType, char *receivedMessage)
     message_buf msgBuf;
     int msqId = getMsgQueueId(false);
     int msgRcvRes = msgrcv(msqId, &msgBuf, sizeof(msgBuf.mtext), msgType, READ_CLEARANCE);
-    printf("eseguito msgrcv con codice %d\n", msgRcvRes);
     if (msgRcvRes == -1)
     {
         throwException("receiveMsgQueue");
@@ -380,8 +366,7 @@ void unallocateMsgQueue()
     int deleteRes = msgctl(msqId, IPC_RMID, NULL);
     if (deleteRes == -1)
     {
-        perror("unallocateMsgQueue");
-        exit(-1);
+        throwException("unallocateMsgQueue");
     }
 }
 

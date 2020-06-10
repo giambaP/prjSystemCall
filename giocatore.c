@@ -99,6 +99,7 @@ void play(int dataId)
         {
             if (playerData->playerStatus != CONNECTED)
             {
+                printf("Giocatore connesso\n");
                 playerData->playerStatus = CONNECTED;
             }
             nextPlayer(semId, playerData->semNum);
