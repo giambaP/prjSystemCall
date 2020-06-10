@@ -89,7 +89,7 @@ void play()
     printf("      [playersData:%lu]\n", ARRSIZE(gameData->playersData));
     printf("      [actionType:%d]\n", gameData->actionType);
     printf("-------------------------------------------\n");
-
+ 
     int semId = getSemId();
 
     // start game
