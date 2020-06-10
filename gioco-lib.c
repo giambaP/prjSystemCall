@@ -22,7 +22,7 @@
 #define MINIMUM_BET 30
 #define MSG_QUEUE_SIZE 128
 #define MSG_TYPE_USER_MATCH 1
-#define MAX_DEFAULT_PLAYERS 1
+#define MAX_DEFAULT_PLAYERS 3
 #define EXCHANGE "euro"
 
 // msg structure
@@ -68,8 +68,8 @@ typedef struct pdata
     unsigned int semNum;               // numero semaforo del giocatore
     char playerName[30];               // nome giocatore
     PlayerStatus playerStatus;         // definisce lo stato del giocatore
-    unsigned int startingMoney;        // soldi iniziali
-    unsigned int currentMoney;         // soldi correnti
+    int startingMoney;                 // soldi iniziali
+    int currentMoney;                  // soldi correnti
     unsigned int currentBet;           // soldi scommessi in questa giocata
     unsigned int currentBetPercentage; // percentuale soldi scommessi in questa giocata rispetto a quelli correnti
     RoundResultType lastRoundResult;   // definisce lo stato dell'ultima giocata: vinta o persa
@@ -84,8 +84,8 @@ typedef struct gdata
 {
     pid_t croupierPid;                           // pid del banco
     unsigned int croupierSemNum;                 // numero semaforo del banco
-    unsigned int croupierStartingMoney;          // soldi iniziali
-    unsigned int croupierCurrentMoney;           // soldi correnti
+    int croupierStartingMoney;                   // soldi iniziali
+    int croupierCurrentMoney;                    // soldi correnti
     unsigned int totalPlayedGamesCount;          // partite giocate
     unsigned int winnedGamesCount;               // partite vinte
     unsigned int losedGamesCount;                // partite perse
@@ -111,7 +111,7 @@ key_t getKey()
 
 unsigned int randomValue(int randomSeed, int rangeFrom, int rangeTo)
 {
-    srand((unsigned int)randomSeed * time(NULL));
+    srand((unsigned int)randomSeed);
     return (rand() % (rangeTo - rangeFrom + 1)) + rangeFrom;
 }
 

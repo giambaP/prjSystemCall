@@ -191,7 +191,7 @@ void play()
             if (gameData->croupierCurrentMoney <= 0)
             {
                 // TODO sending message to players to end game
-                printf("Il banco è finito in bancarotta!\n");
+                printf("\nIl banco è finito in bancarotta!\n");
                 pausePlayer(CROUPIER_SEM_NUM, semId); // TEMPORANEO .... tanto per stopparlo
             }
             // checking players failure
@@ -236,7 +236,6 @@ void play()
                 }
 
                 printf("\n=========>  ROUND N. %d TERMINATO <=========\n", gameData->totalPlayedGamesCount);
-                sleep(3);
 
                 // searching for new players in case of players failure
                 if (playerFailureCount > 0)
