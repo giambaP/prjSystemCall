@@ -1,8 +1,8 @@
 #include "gioco-lib.c"
 
 #define REQUIRED_INPUT_PARAMS 2
-#define PLAYER_CROUPIER_MONEY_RATIO 4 // definisce il rapporto tra i soldi del croupier e di ogni giocatore
-#define PLAYER_PLAYER_WIN_RATIO 2     // definisce, in caso di vincita del giocatore, il numero di volte che deve essere moltiplicata la somma scommessa
+#define PLAYER_CROUPIER_MONEY_RATIO 50 // definisce il rapporto tra i soldi del croupier e di ogni giocatore
+#define PLAYER_PLAYER_WIN_RATIO 2      // definisce, in caso di vincita del giocatore, il numero di volte che deve essere moltiplicata la somma scommessa
 
 void printTitle();
 void setupGameData(GameData *gameData);
