@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <stdbool.h>
 #include <time.h>
+#include <signal.h>
 #include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -82,13 +83,13 @@ typedef struct pdata
 } PlayerData;
 typedef struct gdata
 {
-    pid_t croupierPid;                  // pid del banco
-    unsigned int croupierSemNum;        // numero semaforo del banco
-    int croupierStartingMoney;          // soldi iniziali
-    int croupierCurrentMoney;           // soldi correnti
-    unsigned int totalPlayedGamesCount; // partite giocate
-    unsigned int winnedGamesCount;      // partite vinte
-    unsigned int losedGamesCount;       // partite perse
+    pid_t croupierPid;                           // pid del banco
+    unsigned int croupierSemNum;                 // numero semaforo del banco
+    int croupierStartingMoney;                   // soldi iniziali
+    int croupierCurrentMoney;                    // soldi correnti
+    unsigned int totalPlayedGamesCount;          // partite giocate
+    unsigned int winnedGamesCount;               // partite vinte
+    unsigned int losedGamesCount;                // partite perse
     PlayerData playersData[MAX_DEFAULT_PLAYERS]; // contiene i dati di tutti i giocatori
     PlayerActionType actionType;                 // definisce il tipo di azione che deve fare il giocatore
 } GameData;
@@ -156,24 +157,25 @@ void allocateShm(GameData *gameData)
     memcpy(shmP, gameData, sizeof(GameData));
 }
 
-int getShmId()
+int getShmId(bool skipErrorLog)
 {
     key_t shmKey = getKey();
 
     int shmId = shmget(shmKey, sizeof(GameData), READ_CLEARANCE);
-    if (shmId == -1)
+    if (shmId == -1 && skipErrorLog == false)
     {
         throwException("Error during shm id retrieving!");
     }
     return shmId;
 }
 
-GameData *getGameData()
+GameData *getGameData(bool skipErrorLog)
 {
-    // CERCARE MEMORIA TODO
-    // SE ESISTE GIA' DEALLOCARLA
-    // ALLOCCARLA
-    int shmId = getShmId();
+    int shmId = getShmId(skipErrorLog);
+    if (shmId == -1 && skipErrorLog == true)
+    {
+        return (GameData *)-1;
+    }
     errno = 0;
     GameData *p = (GameData *)shmat(shmId, 0, 0);
     if (errno != 0)
@@ -206,13 +208,13 @@ GameData *getGameData()
     return p;
 }
 
-void unallocateShm(bool skipLog)
+void unallocateShm(bool skipErrorLog)
 {
     /// TODO .... usare anche SHMDT prima del semctl per svuotare la memoria
     //detach from shared memory
     //shmdt(str);
-    int semId = getShmId();
-    if (shmctl(semId, IPC_RMID, 0) == -1 && skipLog == false)
+    int semId = getShmId(skipErrorLog);
+    if (shmctl(semId, IPC_RMID, 0) == -1 && skipErrorLog == false)
     {
         throwException("Error during shm unallocation! Shm not deleted!");
     }

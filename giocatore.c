@@ -8,9 +8,27 @@ void setupPlayer(int dataId);
 int lookUpGame();
 void play(int dataId);
 void nextPlayer(int semId, int semNumPlayer);
+void sigIntHandler(int sig);
+void sigTermHandler(int sig);
 
 int main(int argc, char *argv[])
 {
+    if (signal(SIGINT, sigIntHandler) == SIG_ERR)
+    {
+        printf("SIGINT install error\n");
+        exit(2);
+    }
+    if (signal(SIGTERM, sigTermHandler) == SIG_ERR)
+    {
+        printf("SIGTERM install error\n");
+        exit(2);
+    }
+    if (signal(SIGQUIT, sigIntHandler) == SIG_ERR)
+    {
+        printf("SIGQUIT install error\n");
+        exit(2);
+    }
+
     srand(getpid());
 
     waitMessageQueueInitialization();
@@ -40,7 +58,7 @@ void setupPlayer(int dataId)
     char *playerPossibleNames[] = {"Giovanni", "Pietro", "Arianna", "Tommaso", "Alice", "Michael", "Arturo", "Stefano", "Michele", "Giacomo", "Silvia", "Martina", "Lucrezia", "Filippo", "Giambattista", "Michael", "Tiziana", "Elia", "Sara", "Raffaele"};
     randomSort(playerPossibleNames, ARRSIZE(playerPossibleNames), sizeof(playerPossibleNames[0]));
 
-    GameData *gameData = getGameData();
+    GameData *gameData = getGameData(false);
 
     int startingMoney = randomValue((int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY);
     PlayerData pd;
@@ -85,7 +103,7 @@ int lookUpGame()
 
 void play(int dataId)
 {
-    GameData *gameData = getGameData();
+    GameData *gameData = getGameData(false);
     PlayerData *playerData = gameData->playersData + dataId;
     int semId = getSemId();
 
@@ -154,4 +172,31 @@ void nextPlayer(int semId, int semNumPlayer)
 {
     int nextSemNumPlayer = (semNumPlayer + 1) <= MAX_DEFAULT_PLAYERS ? (semNumPlayer + 1) : CROUPIER_SEM_NUM;
     setSem(nextSemNumPlayer, semId, 1);
+}
+
+void sigIntHandler(int sig)
+{
+    GameData *gameData = getGameData(true);
+    if (((long)gameData) != -1)
+    {
+        int myPid = getpid();
+        // killing other players
+        for (int i = 0; i < MAX_DEFAULT_PLAYERS; i++)
+        {
+            PlayerData *p = gameData->playersData + i;
+            if (p->pid != myPid && p->pid != 0)
+            {
+                kill(p->pid, SIGTERM);
+            }
+        }
+        // killing banco
+        kill(gameData->croupierPid, SIGTERM);
+    }
+    exit(0);
+}
+
+void sigTermHandler(int sig)
+{
+    printf("\nProgramma terminato. Arriverci!\n");
+    exit(0);
 }

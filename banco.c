@@ -10,10 +10,21 @@ void connectPlayers();
 void connectPlayer(int dataId);
 void play();
 void nextPlayer(int semId);
+void sigIntHandler(int sig);
+void sigTermHandler(int sig);
 
 int main(int argc, char *argv[])
 {
-    // TODO manage SIGNALS: PULISCI I DATI!!!!!!!
+    if (signal(SIGINT, sigIntHandler) == SIG_ERR)
+    {
+        printf("SIGINT install error\n");
+        exit(2);
+    }
+    if (signal(SIGTERM, sigTermHandler) == SIG_ERR)
+    {
+        printf("SIGTERM install error\n");
+        exit(2);
+    }
 
     srand(getpid());
 
@@ -38,10 +49,6 @@ int main(int argc, char *argv[])
     connectPlayers();
 
     play();
-
-    unallocateMsgQueue();
-    unallocateShm(false);
-    unallocateSem(false);
 
     return 0;
 }
@@ -82,7 +89,7 @@ void connectPlayers()
 
 void play()
 {
-    GameData *gameData = getGameData();
+    GameData *gameData = getGameData(false);
     int semId = getSemId();
 
     printf("\nBanco impostato: totale cassa %d %s\n", gameData->croupierCurrentMoney, EXCHANGE);
@@ -152,7 +159,7 @@ void play()
                 // player win
                 if (p->totalDiceResult >= croupierTotalDiceResult)
                 {
-                    int win = p->currentBet * PLAYER_PLAYER_WIN_RATIO; 
+                    int win = p->currentBet * PLAYER_PLAYER_WIN_RATIO;
                     gameData->croupierCurrentMoney -= win;
                     p->currentMoney += win;
                     p->winnedGamesCount++;
@@ -280,4 +287,32 @@ void play()
 void nextPlayer(int semId)
 {
     setSem(CROUPIER_SEM_NUM + 1, semId, 1);
+}
+
+void sigIntHandler(int sig)
+{
+    GameData *gameData = getGameData(true);
+    if (((long)gameData) != -1)
+    {
+        int myPid = getpid();
+        // killing other players
+        for (int i = 0; i < MAX_DEFAULT_PLAYERS; i++)
+        {
+            PlayerData *p = gameData->playersData + i;
+            if (p->pid != myPid)
+            {
+                kill(p->pid, SIGTERM);
+            }
+        }
+    }
+    exit(0);
+}
+
+void sigTermHandler(int sig)
+{
+    unallocateMsgQueue();
+    unallocateShm(false);
+    unallocateSem(false);
+    printf("\nProgramma terminato. Arriverci!\n");
+    exit(0);
 }
