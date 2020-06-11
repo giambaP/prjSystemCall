@@ -13,15 +13,6 @@ void nextPlayer(int semId);
 
 int main(int argc, char *argv[])
 {
-    // if (argc != 1 && argc != REQUIRED_INPUT_PARAMS)
-    // {
-    //     fprintf(stderr, "Numero parametri input non corretto! Attesi: %d, Trovati: %d\n", REQUIRED_INPUT_PARAMS, argc);
-    //     fprintf(stderr, "Programma terminato!\n");
-    //     exit(1);
-    // }
-    // int maxPlayersCount = (argc == REQUIRED_INPUT_PARAMS ? atoi(argv[1]) : MAX_DEFAULT_PLAYERS);
-    // maxPlayersCount = maxPlayersCount > 0 ? maxPlayersCount : MAX_DEFAULT_PLAYERS;
-
     // TODO manage SIGNALS: PULISCI I DATI!!!!!!!
 
     srand(getpid());
@@ -84,6 +75,7 @@ void connectPlayers()
     for (int dataId = 0; dataId < MAX_DEFAULT_PLAYERS; dataId++)
     {
         connectPlayer(dataId);
+        printf("Giocatore %d/%d connesso.\n", dataId + 1, MAX_DEFAULT_PLAYERS);
     }
     printf("Ricerca giocatori completata.\n");
 }
@@ -91,21 +83,9 @@ void connectPlayers()
 void play()
 {
     GameData *gameData = getGameData();
-
-    // // TODO to remove
-    // printf("-------------------------------------------\n");
-    // printf("BANCO [pid:%d, semnum:%d]\n", gameData->croupierPid, gameData->croupierSemNum);
-    // printf("      [croupierStartingMoney:%d]\n", gameData->croupierStartingMoney);
-    // printf("      [croupierCurrentMoney:%d]\n", gameData->croupierCurrentMoney);
-    // printf("      [totalPlayedGamesCount:%d]\n", gameData->totalPlayedGamesCount);
-    // printf("      [winnedGamesCount:%d]\n", gameData->winnedGamesCount);
-    // printf("      [losedGamesCount:%d]\n", gameData->losedGamesCount);
-    // printf("      [playersData:%lu]\n", ARRSIZE(gameData->playersData));
-    // printf("      [actionType:%d]\n", gameData->actionType);
-    // printf("-------------------------------------------\n");
-
     int semId = getSemId();
-    printf("Banco impostato: totale cassa %d %s\n", gameData->croupierCurrentMoney, EXCHANGE);
+
+    printf("\nBanco impostato: totale cassa %d %s\n", gameData->croupierCurrentMoney, EXCHANGE);
 
     bool loop = true;
     while (loop == true)
@@ -194,7 +174,9 @@ void play()
             if (gameData->croupierCurrentMoney > 0)
             {
                 printf("|- %-13s-> %d %s\n", "Banco", gameData->croupierCurrentMoney, EXCHANGE);
-            } else {
+            }
+            else
+            {
                 printf("|- %-13s-> BANCAROTTA\n", "Banco");
             }
             bool playerFailureCount = 0;
