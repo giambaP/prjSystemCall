@@ -10,6 +10,7 @@ void connectPlayers();
 void connectPlayer(int dataId);
 void play();
 void nextPlayer(int semId);
+void terminateOtherPrograms();
 void sigIntHandler(int sig);
 void sigTermHandler(int sig);
 
@@ -227,11 +228,11 @@ void play()
             if (gameData->croupierCurrentMoney <= 0)
             {
                 printf("\nIl Banco è finito in bancarotta!\n");
-                pausePlayer(CROUPIER_SEM_NUM, semId); // TEMPORANEO .... tanto per stopparlo
+                terminateOtherPrograms();
+                loop = false; // exit program
             }
-
             // searching for new players in case of players failure
-            if (playerFailureCount > 0)
+            else if (playerFailureCount > 0)
             {
                 printf("\n%s in bancarotta. \n", playerFailureCount > 1 ? "Alcuni giocatori sono andati" : "Un giocatore è andato");
                 printf("Salutiamo"); // senza \n volontariamente
@@ -289,7 +290,7 @@ void nextPlayer(int semId)
     setSem(CROUPIER_SEM_NUM + 1, semId, 1);
 }
 
-void sigIntHandler(int sig)
+void terminateOtherPrograms()
 {
     GameData *gameData = getGameData(true);
     if (((long)gameData) != -1)
@@ -305,14 +306,20 @@ void sigIntHandler(int sig)
             }
         }
     }
+    unallocateMsgQueue();
+    unallocateShm(false);
+    unallocateSem(false);
+    printf("\nProgramma terminato. Arriverci!\n");
+}
+
+void sigIntHandler(int sig)
+{
+    terminateOtherPrograms();
     exit(0);
 }
 
 void sigTermHandler(int sig)
 {
-    unallocateMsgQueue();
-    unallocateShm(false);
-    unallocateSem(false);
-    printf("\nProgramma terminato. Arriverci!\n");
+    terminateOtherPrograms();
     exit(0);
 }
