@@ -40,7 +40,7 @@ void setupPlayer(int dataId)
     char *playerPossibleNames[] = {"Giovanni", "Pietro", "Arianna", "Tommaso", "Alice", "Michael", "Arturo", "Stefano", "Michele", "Giacomo", "Silvia", "Martina", "Lucrezia", "Filippo", "Giambattista", "Michael", "Tiziana", "Elia", "Sara", "Raffaele"};
     randomSort(playerPossibleNames, ARRSIZE(playerPossibleNames), sizeof(playerPossibleNames[0]));
 
-    int startingMoney = randomValue(dataId, (int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY);
+    int startingMoney = randomValue(getpid(), (int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY);
     GameData *gameData = getGameData();
     PlayerData pd;
     pd.dataId = dataId;
@@ -99,34 +99,31 @@ void play(int dataId)
         {
             if (playerData->playerStatus != CONNECTED)
             {
-                printf("Giocatore connesso\n");
+                printf("Giocatore %s connesso\n", playerData->playerName);
                 playerData->playerStatus = CONNECTED;
             }
             nextPlayer(semId, playerData->semNum);
+            break;
         }
-        break;
         case BET:
         {
             // betting between 1 and 50 percent of current money
-            int randomSeed = playerData->semNum + playerData->currentMoney;
-            playerData->currentBetPercentage = randomValue(randomSeed, MIN_BET_PERCENTAGE, MAX_BET_PERCENTAGE);
-            playerData->currentBet = (playerData->currentMoney * playerData->currentBetPercentage) / 100;
-            if (playerData->currentBet < 1)
-            {
-                playerData->currentBet = 1;
-                playerData->currentBetPercentage = (playerData->currentBet * 100) / playerData->currentMoney;
-            }
+            int minBetValue = (playerData->currentMoney * MIN_BET_PERCENTAGE) / 100;
+            int maxBetValue = (playerData->currentMoney * MAX_BET_PERCENTAGE) / 100;
+            playerData->currentBet = randomValue(getpid(), minBetValue, maxBetValue);
+            playerData->currentBet = playerData->currentBet < 1 ? 1 : playerData->currentBet;
+            playerData->currentBetPercentage = ((float)playerData->currentBet * 100) / ((float)playerData->currentMoney);
             nextPlayer(semId, playerData->semNum);
+            break;
         }
-        break;
         case PLAY:
         {
-            playerData->firstDiceResult = randomValue(playerData->currentMoney, 1, 6);
-            playerData->secondDiceResult = randomValue(playerData->currentBet, 1, 6);
+            playerData->firstDiceResult = randomValue(playerData->currentMoney * getpid(), 1, 6);
+            playerData->secondDiceResult = randomValue(playerData->currentBet * getpid(), 1, 6);
             playerData->totalDiceResult = playerData->firstDiceResult + playerData->secondDiceResult;
             nextPlayer(semId, playerData->semNum);
+            break;
         }
-        break;
         case LEAVE:
         {
             printf("-------------------------------------------\n");
@@ -138,10 +135,10 @@ void play(int dataId)
             printf("             [winnedGamesCount:%d]\n", playerData->winnedGamesCount);
             printf("             [losedGamesCount:%d]\n", playerData->losedGamesCount);
             printf("-------------------------------------------\n");
-            nextPlayer(CROUPIER_SEM_NUM, semId);
-            sleep(30);
+            nextPlayer(semId, CROUPIER_SEM_NUM);
+            loop = false;
+            break;
         }
-        break;
         default:
         {
             char message[] = "Unsupported operation type with code %d!";

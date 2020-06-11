@@ -63,32 +63,33 @@ typedef enum roundResultType
 } RoundResultType;
 typedef struct pdata
 {
-    unsigned int dataId;               // indice dati
-    pid_t pid;                         // pid del giocatore
-    unsigned int semNum;               // numero semaforo del giocatore
-    char playerName[30];               // nome giocatore
-    PlayerStatus playerStatus;         // definisce lo stato del giocatore
-    int startingMoney;                 // soldi iniziali
-    int currentMoney;                  // soldi correnti
-    unsigned int currentBet;           // soldi scommessi in questa giocata
-    unsigned int currentBetPercentage; // percentuale soldi scommessi in questa giocata rispetto a quelli correnti
-    RoundResultType lastRoundResult;   // definisce lo stato dell'ultima giocata: vinta o persa
-    unsigned int firstDiceResult;      // risultato primo dado di questa giocata
-    unsigned int secondDiceResult;     // risultato secondo dado di questa giocata
-    unsigned int totalDiceResult;      // risultato totale dadi di questa giocata
-    unsigned int playedGamesCount;     // partite giocate
-    unsigned int winnedGamesCount;     // partite vinte
-    unsigned int losedGamesCount;      // partite perse
+    unsigned int dataId;             // indice dati
+    pid_t pid;                       // pid del giocatore
+    unsigned int semNum;             // numero semaforo del giocatore
+    char playerName[30];             // nome giocatore
+    PlayerStatus playerStatus;       // definisce lo stato del giocatore
+    int startingMoney;               // soldi iniziali
+    int currentMoney;                // soldi correnti
+    unsigned int currentBet;         // soldi scommessi in questa giocata
+    float currentBetPercentage;      // percentuale soldi scommessi in questa giocata rispetto a quelli correnti
+    RoundResultType lastRoundResult; // definisce lo stato dell'ultima giocata: vinta o persa
+    unsigned int firstDiceResult;    // risultato primo dado di questa giocata
+    unsigned int secondDiceResult;   // risultato secondo dado di questa giocata
+    unsigned int totalDiceResult;    // risultato totale dadi di questa giocata
+    unsigned int playedGamesCount;   // partite giocate
+    unsigned int winnedGamesCount;   // partite vinte
+    unsigned int losedGamesCount;    // partite perse
 } PlayerData;
 typedef struct gdata
 {
-    pid_t croupierPid;                           // pid del banco
-    unsigned int croupierSemNum;                 // numero semaforo del banco
-    int croupierStartingMoney;                   // soldi iniziali
-    int croupierCurrentMoney;                    // soldi correnti
-    unsigned int totalPlayedGamesCount;          // partite giocate
-    unsigned int winnedGamesCount;               // partite vinte
-    unsigned int losedGamesCount;                // partite perse
+    pid_t croupierPid;                  // pid del banco
+    unsigned int croupierSemNum;        // numero semaforo del banco
+    int croupierStartingMoney;          // soldi iniziali
+    int croupierCurrentMoney;           // soldi correnti
+    unsigned int totalPlayedGamesCount; // partite giocate
+    unsigned int winnedGamesCount;      // partite vinte
+    unsigned int losedGamesCount;       // partite perse
+    unsigned int randomSeed;
     PlayerData playersData[MAX_DEFAULT_PLAYERS]; // contiene i dati di tutti i giocatori
     PlayerActionType actionType;                 // definisce il tipo di azione che deve fare il giocatore
 } GameData;
