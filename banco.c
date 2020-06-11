@@ -1,8 +1,8 @@
 #include "gioco-lib.c"
 
 #define REQUIRED_INPUT_PARAMS 2
-#define PLAYER_CROUPIER_MONEY_RATIO 50 // definisce il rapporto tra i soldi del croupier e di ogni giocatore
-#define PLAYER_PLAYER_WIN_RATIO 2      // definisce, in caso di vincita del giocatore, il numero di volte che deve essere moltiplicata la somma scommessa
+#define PLAYER_CROUPIER_MONEY_RATIO 5 // definisce il rapporto tra i soldi del croupier e di ogni giocatore
+#define PLAYER_PLAYER_WIN_RATIO 2     // definisce, in caso di vincita del giocatore, il numero di volte che deve essere moltiplicata la somma scommessa
 
 void printTitle();
 void setupGameData(GameData *gameData);
@@ -27,14 +27,14 @@ int main(int argc, char *argv[])
         exit(2);
     }
 
-    srand(getpid());
+    srand(getpid() * 100);
 
     // setup game data
     int startingMoney = randomValue((int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY) * PLAYER_CROUPIER_MONEY_RATIO;
     GameData gameData;
     gameData.croupierPid = getpid();
     gameData.croupierSemNum = CROUPIER_SEM_NUM;
-    gameData.croupierStartingMoney = startingMoney / 10 * 10; // TODO conti tondi per il momento
+    gameData.croupierStartingMoney = startingMoney / 10 * 10;
     gameData.croupierCurrentMoney = gameData.croupierStartingMoney;
     gameData.totalPlayedGamesCount = 0;
     gameData.winnedGamesCount = 0;
@@ -309,7 +309,7 @@ void terminateOtherPrograms()
     unallocateMsgQueue();
     unallocateShm(false);
     unallocateSem(false);
-    printf("\nProgramma terminato. Arriverci!\n");
+    printf("\nProgramma terminato. Arrivederci!\n");
 }
 
 void sigIntHandler(int sig)
