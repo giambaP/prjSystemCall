@@ -21,11 +21,13 @@ int main(int argc, char *argv[])
     // }
     // int maxPlayersCount = (argc == REQUIRED_INPUT_PARAMS ? atoi(argv[1]) : MAX_DEFAULT_PLAYERS);
     // maxPlayersCount = maxPlayersCount > 0 ? maxPlayersCount : MAX_DEFAULT_PLAYERS;
-
+    
     // TODO manage SIGNALS: PULISCI I DATI!!!!!!!
 
+    srand(getpid());
+
     // setup game data
-    int startingMoney = randomValue(getpid(), (int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY) * PLAYER_CROUPIER_MONEY_RATIO;
+    int startingMoney = randomValue((int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY) * PLAYER_CROUPIER_MONEY_RATIO;
     GameData gameData;
     gameData.croupierPid = getpid();
     gameData.croupierSemNum = CROUPIER_SEM_NUM;
@@ -151,8 +153,8 @@ void play()
             pausePlayer(CROUPIER_SEM_NUM, semId);
 
             // croupier role dices
-            int croupierFirstDiceResult = randomValue(getpid(), 1, 6);
-            int croupierSecondDiceResult = randomValue(getpid(), 1, 6);
+            int croupierFirstDiceResult = randomValue(1, 6);
+            int croupierSecondDiceResult = randomValue(1, 6);
             int croupierTotalDiceResult = croupierFirstDiceResult + croupierSecondDiceResult;
 
             // showing dices result

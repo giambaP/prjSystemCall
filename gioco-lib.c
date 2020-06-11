@@ -16,8 +16,8 @@
 #define KEY_ID 100
 #define READ_CLEARANCE 0777 // TODO rimuovere
 #define CROUPIER_SEM_NUM 0
-#define MAX_INIT_PLAYER_MONEY 30
 #define MIN_INIT_PLAYER_MONEY 20
+#define MAX_INIT_PLAYER_MONEY 40
 #define ARRSIZE(x) (sizeof(x) / sizeof(x[0]))
 #define MINIMUM_BET 30
 #define MSG_QUEUE_SIZE 128
@@ -89,7 +89,6 @@ typedef struct gdata
     unsigned int totalPlayedGamesCount; // partite giocate
     unsigned int winnedGamesCount;      // partite vinte
     unsigned int losedGamesCount;       // partite perse
-    unsigned int randomSeed;
     PlayerData playersData[MAX_DEFAULT_PLAYERS]; // contiene i dati di tutti i giocatori
     PlayerActionType actionType;                 // definisce il tipo di azione che deve fare il giocatore
 } GameData;
@@ -110,9 +109,8 @@ key_t getKey()
     return key;
 }
 
-unsigned int randomValue(int randomSeed, int rangeFrom, int rangeTo)
+unsigned int randomValue(int rangeFrom, int rangeTo)
 {
-    srand((unsigned int)randomSeed);
     return (rand() % (rangeTo - rangeFrom + 1)) + rangeFrom;
 }
 

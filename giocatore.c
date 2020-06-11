@@ -11,12 +11,12 @@ void nextPlayer(int semId, int semNumPlayer);
 
 int main(int argc, char *argv[])
 {
+    srand(getpid());
+
     waitMessageQueueInitialization();
-
+    
     int dataId = lookUpGame();
-
     setupPlayer(dataId);
-
     play(dataId);
 
     return 0;
@@ -40,8 +40,9 @@ void setupPlayer(int dataId)
     char *playerPossibleNames[] = {"Giovanni", "Pietro", "Arianna", "Tommaso", "Alice", "Michael", "Arturo", "Stefano", "Michele", "Giacomo", "Silvia", "Martina", "Lucrezia", "Filippo", "Giambattista", "Michael", "Tiziana", "Elia", "Sara", "Raffaele"};
     randomSort(playerPossibleNames, ARRSIZE(playerPossibleNames), sizeof(playerPossibleNames[0]));
 
-    int startingMoney = randomValue(getpid(), (int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY);
     GameData *gameData = getGameData();
+
+    int startingMoney = randomValue((int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY);
     PlayerData pd;
     pd.dataId = dataId;
     pd.pid = getpid();
@@ -110,7 +111,7 @@ void play(int dataId)
             // betting between 1 and 50 percent of current money
             int minBetValue = (playerData->currentMoney * MIN_BET_PERCENTAGE) / 100;
             int maxBetValue = (playerData->currentMoney * MAX_BET_PERCENTAGE) / 100;
-            playerData->currentBet = randomValue(getpid(), minBetValue, maxBetValue);
+            playerData->currentBet = randomValue(minBetValue, maxBetValue);
             playerData->currentBet = playerData->currentBet < 1 ? 1 : playerData->currentBet;
             playerData->currentBetPercentage = ((float)playerData->currentBet * 100) / ((float)playerData->currentMoney);
             nextPlayer(semId, playerData->semNum);
@@ -118,8 +119,8 @@ void play(int dataId)
         }
         case PLAY:
         {
-            playerData->firstDiceResult = randomValue(playerData->currentMoney * getpid(), 1, 6);
-            playerData->secondDiceResult = randomValue(playerData->currentBet * getpid(), 1, 6);
+            playerData->firstDiceResult = randomValue(1, 6);
+            playerData->secondDiceResult = randomValue(1, 6);
             playerData->totalDiceResult = playerData->firstDiceResult + playerData->secondDiceResult;
             nextPlayer(semId, playerData->semNum);
             break;
