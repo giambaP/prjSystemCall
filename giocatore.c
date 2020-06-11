@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     srand(getpid());
 
     waitMessageQueueInitialization();
-    
+
     int dataId = lookUpGame();
     setupPlayer(dataId);
     play(dataId);
