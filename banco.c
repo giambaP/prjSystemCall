@@ -152,7 +152,7 @@ void play()
                 // player win
                 if (p->totalDiceResult >= croupierTotalDiceResult)
                 {
-                    int win = p->currentBet * PLAYER_PLAYER_WIN_RATIO;
+                    int win = p->currentBet * PLAYER_PLAYER_WIN_RATIO; 
                     gameData->croupierCurrentMoney -= win;
                     p->currentMoney += win;
                     p->winnedGamesCount++;
