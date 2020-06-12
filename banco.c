@@ -1,3 +1,10 @@
+/*
+    Matricola: VR380626               
+    Nome e cognome: Giambattista Pomari
+    Data di realizzazione: 13/06/2020 
+    Titolo esercizio: Secono elaborato - UNIX System Call
+*/
+
 #include "gioco-lib.c"
 
 #define PLAYER_CROUPIER_MONEY_RATIO 5 // definisce il rapporto tra i soldi del croupier e di ogni giocatore
