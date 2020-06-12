@@ -317,7 +317,7 @@ void terminateOtherPrograms()
     unallocateMsgQueue();
     unallocateShm(false);
     unallocateSem(false);
-    printf("\nProgramma terminato. Arrivederci!\n");
+    printf("\Gioco terminato. Arrivederci!\n");
 }
 
 void sigIntHandler(int sig)

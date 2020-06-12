@@ -231,6 +231,6 @@ void sigTermHandler(int sig)
             }
         }
     }
-    printf("\nProgramma terminato. Arrivederci!\n");
+    printf("\Gioco terminato. Arrivederci!\n");
     exit(0);
 }
