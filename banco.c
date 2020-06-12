@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     GameData gameData;
     gameData.croupierPid = getpid();
     gameData.croupierSemNum = CROUPIER_SEM_NUM;
-    gameData.croupierStartingMoney = startingMoney / 10 * 10;
+    gameData.croupierStartingMoney = startingMoney;
     gameData.croupierCurrentMoney = gameData.croupierStartingMoney;
     gameData.totalPlayedGamesCount = 0;
     gameData.winnedGamesCount = 0;
@@ -113,7 +113,7 @@ void play()
                 if (p.playerStatus == CONNECTED)
                 {
                     p.playerStatus == PLAYING;
-                    printf("|- %-13s-> budget di %d %s\n", p.playerName, p.currentMoney, EXCHANGE);
+                    printf(" - %-13s-> budget di %d %s\n", p.playerName, p.currentMoney, EXCHANGE);
                 }
             }
             gameData->actionType = BET;
@@ -122,14 +122,14 @@ void play()
         case BET:
         {
             gameData->totalPlayedGamesCount++;
-            printf("\n\n==============>  ROUND N. %d  <=============\n", gameData->totalPlayedGamesCount);
+            printf("\n\n=============[  ROUND N. %d  ]===============\n", gameData->totalPlayedGamesCount);
             printf("\nI giocatori facciano la loro puntata:\n");
             nextPlayer(semId);
             pausePlayer(CROUPIER_SEM_NUM, semId);
             for (int i = 0; i < MAX_DEFAULT_PLAYERS; i++)
             {
                 PlayerData p = gameData->playersData[i];
-                printf("|- %-13s-> %d %s: %.1f%% di %d %s\n", p.playerName, p.currentBet, EXCHANGE, p.currentBetPercentage, p.currentMoney, EXCHANGE);
+                printf(" - %-13s-> %d %s: %.1f%% di %d %s\n", p.playerName, p.currentBet, EXCHANGE, p.currentBetPercentage, p.currentMoney, EXCHANGE);
             }
             gameData->actionType = PLAY;
         }
@@ -146,11 +146,11 @@ void play()
             int croupierTotalDiceResult = croupierFirstDiceResult + croupierSecondDiceResult;
 
             // showing dices result
-            printf("|- %-13s-> %d e %d, totale %d\n", "Banco", croupierFirstDiceResult, croupierSecondDiceResult, croupierTotalDiceResult);
+            printf(" - %-13s-> %d e %d, totale %d\n", "Banco", croupierFirstDiceResult, croupierSecondDiceResult, croupierTotalDiceResult);
             for (int i = 0; i < MAX_DEFAULT_PLAYERS; i++)
             {
                 PlayerData p = gameData->playersData[i];
-                printf("|- %-13s-> %d e %d, totale %d\n", p.playerName, p.firstDiceResult, p.secondDiceResult, p.totalDiceResult);
+                printf(" - %-13s-> %d e %d, totale %d\n", p.playerName, p.firstDiceResult, p.secondDiceResult, p.totalDiceResult);
             }
 
             // calculating data
@@ -181,11 +181,11 @@ void play()
             printf("\nRisultato round %d\n", gameData->totalPlayedGamesCount);
             if (gameData->croupierCurrentMoney > 0)
             {
-                printf("|- %-13s-> %d %s\n", "Banco", gameData->croupierCurrentMoney, EXCHANGE);
+                printf(" - %-13s-> %d %s\n", "Banco", gameData->croupierCurrentMoney, EXCHANGE);
             }
             else
             {
-                printf("|- %-13s-> BANCAROTTA\n", "Banco");
+                printf(" - %-13s-> BANCAROTTA\n", "Banco");
             }
             bool playerFailureCount = 0;
             for (int i = 0; i < MAX_DEFAULT_PLAYERS; i++)
@@ -195,18 +195,18 @@ void play()
                 {
                 case WINNED:
                 {
-                    printf("|- %-13s-> vince %d %s: ora possiede %d %s\n", p->playerName, p->currentBet * PLAYER_PLAYER_WIN_RATIO, EXCHANGE, p->currentMoney, EXCHANGE);
+                    printf(" - %-13s-> vince %d %s: ora possiede %d %s\n", p->playerName, p->currentBet * PLAYER_PLAYER_WIN_RATIO, EXCHANGE, p->currentMoney, EXCHANGE);
                 }
                 break;
                 case LOSED:
                 {
                     if (p->currentMoney > 0)
                     {
-                        printf("|- %-13s-> perde %d %s: ora possiede %d %s\n", p->playerName, p->currentBet, EXCHANGE, p->currentMoney, EXCHANGE);
+                        printf(" - %-13s-> perde %d %s: ora possiede %d %s\n", p->playerName, p->currentBet, EXCHANGE, p->currentMoney, EXCHANGE);
                     }
                     else
                     {
-                        printf("|- %-13s-> perde %d %s: non possiede più denaro!\n", p->playerName, p->currentBet, EXCHANGE);
+                        printf(" 4- %-13s-> perde %d %s: non possiede più denaro!\n", p->playerName, p->currentBet, EXCHANGE);
                         p->playerStatus = TO_DISCONNECT;
                         playerFailureCount++;
                     }
@@ -222,7 +222,7 @@ void play()
                 }
             }
 
-            printf("\n=========>  ROUND N. %d TERMINATO <=========\n", gameData->totalPlayedGamesCount);
+            printf("\n=============ROUND N. %d TERMINATO===========\n", gameData->totalPlayedGamesCount);
 
             // checking croupier failure
             if (gameData->croupierCurrentMoney <= 0)

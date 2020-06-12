@@ -148,19 +148,17 @@ void play(int dataId)
         }
         case LEAVE:
         {
+            printf("Partita finita: il giocatore è finito in bancarotta!\n");
             printf("-------------------------------------------\n");
-            printf("GIOCATORE %s [pid:%d, semnum:%d]\n", playerData->playerName, playerData->pid, playerData->semNum);
-            printf("             [startingMoney:%d]\n", playerData->startingMoney);
-            printf("             [currentMoney:%d]\n", playerData->currentMoney);
-            printf("             [currentBet:%d]\n", playerData->currentBet);
-            printf("             [playedGamesCount:%d]\n", playerData->playedGamesCount);
-            printf("             [winnedGamesCount:%d]\n", playerData->winnedGamesCount);
-            printf("             [losedGamesCount:%d]\n", playerData->losedGamesCount);
+            printf("Informazioni giocatore:\n");
+            printf("  - Nome:            %s\n", playerData->playerName);
+            printf("  - Soldi iniziali:  %d %s\n", playerData->startingMoney, EXCHANGE);
+            printf("  - Soldi correnti:  %d %s\n", playerData->currentMoney, EXCHANGE);
+            printf("  - Partite giocate: %d \n", playerData->playedGamesCount);
+            printf("  - Partite vinte:   %d \n", playerData->winnedGamesCount);
+            printf("  - Partite perse:   %d \n", playerData->losedGamesCount);
             printf("-------------------------------------------\n");
-            printf("ripasso la palla al croupier!\n");
             setSem(CROUPIER_SEM_NUM, semId, 1);
-            printf("arrivederci!\n");
-            sleep(5);
             loop = false;
             break;
         }
