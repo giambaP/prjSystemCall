@@ -17,13 +17,13 @@
 #define KEY_ID 100
 #define READ_CLEARANCE 0777 // TODO rimuovere
 #define CROUPIER_SEM_NUM 0
-#define MIN_INIT_PLAYER_MONEY 10
-#define MAX_INIT_PLAYER_MONEY 10
+#define MIN_INIT_PLAYER_MONEY 1
+#define MAX_INIT_PLAYER_MONEY 5
 #define ARRSIZE(x) (sizeof(x) / sizeof(x[0]))
 #define MINIMUM_BET 30
 #define MSG_QUEUE_SIZE 128
 #define MSG_TYPE_USER_MATCH 1
-#define MAX_DEFAULT_PLAYERS 3
+#define MAX_DEFAULT_PLAYERS 1
 #define EXCHANGE "euro"
 
 // msg structure
@@ -349,14 +349,19 @@ int sendMsgQueue(int msgType, char *message)
     }
 }
 
-void receiveMsgQueue(int msgType, char *receivedMessage)
+int receiveMsgQueue(int msgType, char *receivedMessage)
 {
     message_buf msgBuf;
     int msqId = getMsgQueueId(false);
     int msgRcvRes = msgrcv(msqId, &msgBuf, sizeof(msgBuf.mtext), msgType, READ_CLEARANCE);
-    if (msgRcvRes == -1)
+    if (msgRcvRes == -1 && errno != EIDRM)
     {
+        printf("codice errore=%d\n", msgRcvRes);
         throwException("receiveMsgQueue");
+    }
+    else if (errno == EIDRM)
+    {
+        return -1;
     }
     sprintf(receivedMessage, "%s", msgBuf.mtext);
 }

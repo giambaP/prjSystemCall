@@ -67,7 +67,7 @@ void setupPlayer(int dataId)
     pd.semNum = dataId + 1;
     strncpy(pd.playerName, playerPossibleNames[dataId], sizeof(char[30]));
     pd.playerStatus = TO_CONNECT;
-    pd.startingMoney = startingMoney / 10 * 10; // TODO conti tondi per il momento
+    pd.startingMoney = startingMoney;
     pd.currentMoney = pd.startingMoney;
     pd.currentBet = 0;
     pd.currentBetPercentage = 0;
@@ -93,7 +93,10 @@ int lookUpGame()
 
     // receive message from banco
     char *msgReceived = (char *)malloc(sizeof(MSG_QUEUE_SIZE));
-    receiveMsgQueue(getpid(), msgReceived);
+    if (receiveMsgQueue(getpid(), msgReceived) == -1)
+    {
+        exit(0);
+    }
     int dataId = atoi(msgReceived);
     free(msgReceived);
     printf("Partita trovata\n");
@@ -154,7 +157,10 @@ void play(int dataId)
             printf("             [winnedGamesCount:%d]\n", playerData->winnedGamesCount);
             printf("             [losedGamesCount:%d]\n", playerData->losedGamesCount);
             printf("-------------------------------------------\n");
-            nextPlayer(semId, CROUPIER_SEM_NUM);
+            printf("ripasso la palla al croupier!\n");
+            setSem(CROUPIER_SEM_NUM, semId, 1);
+            printf("arrivederci!\n");
+            sleep(5);
             loop = false;
             break;
         }
@@ -197,6 +203,6 @@ void sigIntHandler(int sig)
 
 void sigTermHandler(int sig)
 {
-    printf("\nProgramma terminato. Arriverci!\n");
+    printf("\nProgramma terminato. Arrivederci!\n");
     exit(0);
 }
