@@ -1,6 +1,5 @@
 #include "gioco-lib.c"
 
-#define REQUIRED_INPUT_PARAMS 2
 #define PLAYER_CROUPIER_MONEY_RATIO 5 // definisce il rapporto tra i soldi del croupier e di ogni giocatore
 #define PLAYER_PLAYER_WIN_RATIO 2     // definisce, in caso di vincita del giocatore, il numero di volte che deve essere moltiplicata la somma scommessa
 
@@ -66,14 +65,14 @@ void connectPlayer(int dataId)
 {
     // listening for player message
     char *msgReceived = (char *)malloc(sizeof(MSG_QUEUE_SIZE));
-    receiveMsgQueue(MSG_TYPE_USER_MATCH, msgReceived);
+    receiveMsgQueue(MSG_TYPE_USER_MATCH, msgReceived, false);
     int playerPid = atoi(msgReceived);
     free(msgReceived);
 
     // response to player with dataId
     char *msgSent = (char *)malloc(sizeof(MSG_QUEUE_SIZE));
     sprintf(msgSent, "%d", dataId);
-    sendMsgQueue(playerPid, msgSent);
+    sendMsgQueue(playerPid, msgSent, false);
     free(msgSent);
 }
 
@@ -162,6 +161,7 @@ void play()
                 {
                     int win = p->currentBet * PLAYER_PLAYER_WIN_RATIO;
                     gameData->croupierCurrentMoney -= win;
+                    gameData->losedGamesCount++;
                     p->currentMoney += win;
                     p->winnedGamesCount++;
                     p->lastRoundResult = WINNED;
@@ -170,6 +170,7 @@ void play()
                 else
                 {
                     gameData->croupierCurrentMoney += p->currentBet;
+                    gameData->winnedGamesCount++;
                     p->currentMoney -= p->currentBet;
                     p->losedGamesCount++;
                     p->lastRoundResult = LOSED;
@@ -206,7 +207,7 @@ void play()
                     }
                     else
                     {
-                        printf(" 4- %-13s-> perde %d %s: non possiede più denaro!\n", p->playerName, p->currentBet, EXCHANGE);
+                        printf(" - %-13s-> perde %d %s: non possiede più denaro!\n", p->playerName, p->currentBet, EXCHANGE);
                         p->playerStatus = TO_DISCONNECT;
                         playerFailureCount++;
                     }
@@ -228,6 +229,13 @@ void play()
             if (gameData->croupierCurrentMoney <= 0)
             {
                 printf("\nIl Banco è finito in bancarotta!\n");
+                printf("\n-------------------------------------------\n");
+                printf("Statistiche banco:\n");
+                printf("  - Soldi iniziali:   %d %s\n", gameData->croupierStartingMoney, EXCHANGE);
+                printf("  - Partite giocate:  %d \n", gameData->totalPlayedGamesCount);
+                printf("  - Sessioni vinte:   %d \n", gameData->winnedGamesCount);
+                printf("  - Sessioni perse:   %d \n", gameData->losedGamesCount);
+                printf("-------------------------------------------\n");
                 terminateOtherPrograms();
                 loop = false; // exit program
             }

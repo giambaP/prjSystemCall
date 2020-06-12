@@ -10,6 +10,7 @@ void play(int dataId);
 void nextPlayer(int semId, int semNumPlayer);
 void sigIntHandler(int sig);
 void sigTermHandler(int sig);
+void printPlayerData(PlayerData *playerData);
 
 int main(int argc, char *argv[])
 {
@@ -43,6 +44,7 @@ int main(int argc, char *argv[])
 void waitMessageQueueInitialization()
 {
     printf("Inizializzazione giocatore...\n");
+    printf("Ricerca partita...\n");
     bool skipEEXISTError = true;
     bool msgQueueFound = false;
     while (msgQueueFound == false)
@@ -83,22 +85,27 @@ void setupPlayer(int dataId)
 
 int lookUpGame()
 {
-    printf("Ricerca partita...\n");
-
-    // send message to banco
-    char *msgSent = malloc(sizeof(MSG_QUEUE_SIZE));
-    sprintf(msgSent, "%d", getpid());
-    sendMsgQueue(MSG_TYPE_USER_MATCH, msgSent);
-    free(msgSent);
-
-    // receive message from banco
-    char *msgReceived = (char *)malloc(sizeof(MSG_QUEUE_SIZE));
-    if (receiveMsgQueue(getpid(), msgReceived) == -1)
+    int dataId = -1;
+    while (dataId < 0 || dataId > MAX_DEFAULT_PLAYERS)
     {
-        exit(0);
+        // send message to banco
+        char *msgSent = malloc(sizeof(MSG_QUEUE_SIZE));
+        sprintf(msgSent, "%d", getpid());
+        sendMsgQueue(MSG_TYPE_USER_MATCH, msgSent, true);
+        free(msgSent);
+
+        // receive message from banco
+        char *msgReceived = (char *)malloc(sizeof(MSG_QUEUE_SIZE));
+        if (receiveMsgQueue(getpid(), msgReceived, true) == -1)
+        {
+            exit(0);
+        }
+        dataId = atoi(msgReceived);
+        free(msgReceived);
+
+        sleep(1);
     }
-    int dataId = atoi(msgReceived);
-    free(msgReceived);
+
     printf("Partita trovata\n");
 
     return dataId;
@@ -149,15 +156,7 @@ void play(int dataId)
         case LEAVE:
         {
             printf("Partita finita: il giocatore è finito in bancarotta!\n");
-            printf("-------------------------------------------\n");
-            printf("Informazioni giocatore:\n");
-            printf("  - Nome:            %s\n", playerData->playerName);
-            printf("  - Soldi iniziali:  %d %s\n", playerData->startingMoney, EXCHANGE);
-            printf("  - Soldi correnti:  %d %s\n", playerData->currentMoney, EXCHANGE);
-            printf("  - Partite giocate: %d \n", playerData->playedGamesCount);
-            printf("  - Partite vinte:   %d \n", playerData->winnedGamesCount);
-            printf("  - Partite perse:   %d \n", playerData->losedGamesCount);
-            printf("-------------------------------------------\n");
+            printPlayerData(playerData);
             setSem(CROUPIER_SEM_NUM, semId, 1);
             loop = false;
             break;
@@ -172,6 +171,19 @@ void play(int dataId)
     }
 }
 
+void printPlayerData(PlayerData *playerData)
+{
+    printf("-------------------------------------------\n");
+    printf("Statistiche giocatore:\n");
+    printf("  - Nome:            %s\n", playerData->playerName);
+    printf("  - Soldi iniziali:  %d %s\n", playerData->startingMoney, EXCHANGE);
+    printf("  - Soldi correnti:  %d %s\n", playerData->currentMoney, EXCHANGE);
+    printf("  - Partite giocate: %d \n", playerData->playedGamesCount);
+    printf("  - Partite vinte:   %d \n", playerData->winnedGamesCount);
+    printf("  - Partite perse:   %d \n", playerData->losedGamesCount);
+    printf("-------------------------------------------\n");
+}
+
 void nextPlayer(int semId, int semNumPlayer)
 {
     int nextSemNumPlayer = (semNumPlayer + 1) <= MAX_DEFAULT_PLAYERS ? (semNumPlayer + 1) : CROUPIER_SEM_NUM;
@@ -184,13 +196,17 @@ void sigIntHandler(int sig)
     if (((long)gameData) != -1)
     {
         int myPid = getpid();
-        // killing other players
+        // print my data and killing other players
         for (int i = 0; i < MAX_DEFAULT_PLAYERS; i++)
         {
             PlayerData *p = gameData->playersData + i;
             if (p->pid != myPid && p->pid != 0)
             {
                 kill(p->pid, SIGTERM);
+            }
+            else if (p->pid != 0)
+            {
+                printPlayerData(p);
             }
         }
         // killing banco
@@ -201,6 +217,20 @@ void sigIntHandler(int sig)
 
 void sigTermHandler(int sig)
 {
+    GameData *gameData = getGameData(true);
+    if (((long)gameData) != -1)
+    {
+        int myPid = getpid();
+        // print player data
+        for (int i = 0; i < MAX_DEFAULT_PLAYERS; i++)
+        {
+            PlayerData *p = gameData->playersData + i;
+            if (p->pid != myPid && p->pid != 0)
+            {
+                printPlayerData(p);
+            }
+        }
+    }
     printf("\nProgramma terminato. Arrivederci!\n");
     exit(0);
 }

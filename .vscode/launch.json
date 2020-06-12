@@ -78,7 +78,28 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "build BANCO linux"            
+            "preLaunchTask": "build BANCO"            
+        },
+        {
+            "name": "build,run GIOCATORE linux",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/giocatore",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build GIOCATORE"            
         }
     ]
 }

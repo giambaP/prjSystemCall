@@ -15,15 +15,14 @@
 
 #define KEY_PATH "/dev/null"
 #define KEY_ID 100
-#define READ_CLEARANCE 0777 // TODO rimuovere
+#define READ_WRITE_CLEARANCE 0660
 #define CROUPIER_SEM_NUM 0
-#define MIN_INIT_PLAYER_MONEY 1
-#define MAX_INIT_PLAYER_MONEY 5
+#define MIN_INIT_PLAYER_MONEY 100
+#define MAX_INIT_PLAYER_MONEY 300
 #define ARRSIZE(x) (sizeof(x) / sizeof(x[0]))
-#define MINIMUM_BET 30
 #define MSG_QUEUE_SIZE 128
 #define MSG_TYPE_USER_MATCH 1
-#define MAX_DEFAULT_PLAYERS 1
+#define MAX_DEFAULT_PLAYERS 3
 #define EXCHANGE "euro"
 
 // msg structure
@@ -115,53 +114,11 @@ unsigned int randomValue(int rangeFrom, int rangeTo)
     return (rand() % (rangeTo - rangeFrom + 1)) + rangeFrom;
 }
 
-void allocateShm(GameData *gameData)
-{
-    // CERCARE MEMORIA TODO
-    // SE ESISTE GIA' DEALLOCARLA
-    // ALLOCCARLA
-    key_t shmKey = getKey();
-    int shmId = shmget(shmKey, sizeof(GameData), IPC_CREAT | READ_CLEARANCE); // TEMPORANEO ***************
-    if (shmId == -1)
-    {
-        throwException("Error during shm allocation!");
-    }
-    errno = 0;
-    GameData *shmP = (GameData *)shmat(shmId, 0, 0);
-    if (errno != 0)
-    {
-        char *errorMessage;
-        switch (errno)
-        {
-        case EACCES:
-            errorMessage = "The calling process does not have the required permissions for the requested attach type, and does not have the CAP_IPC_OWNER capability.";
-            break;
-        case EIDRM:
-            errorMessage = "shmid points to a removed identifier.";
-            break;
-        case EINVAL:
-            errorMessage = "Invalid shmid value, unaligned (i.e., not page-aligned and SHM_RND was not specified) or invalid shmaddr value, or can't attach segment at shmaddr, or SHM_REMAP was specified and shmaddr was NULL.";
-            break;
-        case ENOMEM:
-            errorMessage = "Could not allocate memory for the descriptor or for the page tables.";
-            break;
-        default:
-            errorMessage = "no error message defined.";
-        }
-        char *message = "Cannot get game data! Error during shmat! ";
-        char *res = (char *)malloc(sizeof(*errorMessage) + sizeof(*message));
-        strcpy(res, errorMessage);
-        strcat(res, message);
-        throwException(message);
-    }
-    memcpy(shmP, gameData, sizeof(GameData));
-}
-
 int getShmId(bool skipErrorLog)
 {
     key_t shmKey = getKey();
 
-    int shmId = shmget(shmKey, sizeof(GameData), READ_CLEARANCE);
+    int shmId = shmget(shmKey, sizeof(GameData), READ_WRITE_CLEARANCE);
     if (shmId == -1 && skipErrorLog == false)
     {
         throwException("Error during shm id retrieving!");
@@ -177,32 +134,10 @@ GameData *getGameData(bool skipErrorLog)
         return (GameData *)-1;
     }
     errno = 0;
-    GameData *p = (GameData *)shmat(shmId, 0, 0);
-    if (errno != 0)
+    GameData *p = (GameData *)shmat(shmId, 0, READ_WRITE_CLEARANCE);
+    if (p == (void *)-1 && skipErrorLog == false)
     {
-        char *errorMessage;
-        switch (errno)
-        {
-        case EACCES:
-            errorMessage = "The calling process does not have the required permissions for the requested attach type, and does not have the CAP_IPC_OWNER capability.";
-            break;
-        case EIDRM:
-            errorMessage = "shmid points to a removed identifier.";
-            break;
-        case EINVAL:
-            errorMessage = "Invalid shmid value, unaligned (i.e., not page-aligned and SHM_RND was not specified) or invalid shmaddr value, or can't attach segment at shmaddr, or SHM_REMAP was specified and shmaddr was NULL.";
-            break;
-        case ENOMEM:
-            errorMessage = "Could not allocate memory for the descriptor or for the page tables.";
-            break;
-        default:
-            errorMessage = "no error message defined.";
-            break;
-        }
         char *message = "Cannot get game data! Error during shmat! ";
-        char *res = (char *)malloc(sizeof(*errorMessage) + sizeof(*message));
-        strcpy(res, errorMessage);
-        strcat(res, message);
         throwException(message);
     }
     return p;
@@ -210,9 +145,17 @@ GameData *getGameData(bool skipErrorLog)
 
 void unallocateShm(bool skipErrorLog)
 {
-    /// TODO .... usare anche SHMDT prima del semctl per svuotare la memoria
     //detach from shared memory
-    //shmdt(str);
+    GameData *gameData = getGameData(true);
+    if (((long)gameData) != -1)
+    {
+        int shmdtRes = shmdt(gameData);
+        if (shmdtRes == -1)
+        {
+            throwException("Error during shm detaching! Shm not detached!");
+        }
+    }
+    // unllocating data
     int semId = getShmId(skipErrorLog);
     if (shmctl(semId, IPC_RMID, 0) == -1 && skipErrorLog == false)
     {
@@ -220,36 +163,67 @@ void unallocateShm(bool skipErrorLog)
     }
 }
 
-void allocateSem(int playersCount)
+void allocateShm(GameData *gameData)
 {
-    // int semId = semget(semkey, playersCount, IPC_CREAT | IPC_EXCL);
-    // if (semId == -1)
-    // {
-    //     if (errno != EEXIST)
-    //     {
-    // throwException("Error during sem allocation!");
-    //     }
-    //     unallocateSem();
-    //     semId = semget(semkey, playersCount, IPC_CREAT);
-    //      /// CHECK
-    // }
-    key_t semKey = getKey();
-    int semRes = semget(semKey, playersCount, IPC_CREAT | READ_CLEARANCE); // TEMPORANEO ***************
-    if (semRes == -1)
+    key_t shmKey = getKey();
+    // unallocate if exists
+    int shmId = shmget(shmKey, sizeof(GameData), IPC_EXCL);
+    if (shmId != -1)
     {
-        throwException("Error during sem allocation!");
+        unallocateShm(false);
     }
+    // allocating it
+    shmId = shmget(shmKey, sizeof(GameData), IPC_CREAT | READ_WRITE_CLEARANCE);
+    if (shmId == -1)
+    {
+        throwException("Error during shm allocation!");
+    }
+    errno = 0;
+    // allocating game data
+    GameData *shmP = (GameData *)shmat(shmId, 0, READ_WRITE_CLEARANCE);
+    if (shmP == (void *)-1)
+    {
+        throwException("Cannot allocate game data! Error during shmat! ");
+    }
+    memcpy(shmP, gameData, sizeof(GameData));
 }
 
 int getSemId()
 {
     key_t semKey = getKey();
-    int semId = semget(semKey, 0, READ_CLEARANCE);
+    int semId = semget(semKey, 0, READ_WRITE_CLEARANCE);
     if (semId == -1)
     {
         throwException("Error during sem id retrieving!");
     }
     return semId;
+}
+
+void unallocateSem(bool skipLog)
+{
+    int semId = getSemId();
+    int semDeleteResult = semctl(semId, 0, IPC_RMID, 0);
+    if (semDeleteResult == -1 && skipLog == false)
+    {
+        throwException("Error during sem unallocation! Shm not deleted!");
+    }
+}
+
+void allocateSem(int playersCount)
+{
+    key_t semKey = getKey();
+    // unallocate if exists
+    int semRes = semget(semKey, playersCount, IPC_EXCL);
+    if (semRes != -1)
+    {
+        unallocateSem(false);
+    }
+    // allocating it
+    semRes = semget(semKey, playersCount, IPC_CREAT | READ_WRITE_CLEARANCE);
+    if (semRes == -1)
+    {
+        throwException("Error during sem allocation!");
+    }
 }
 
 void setSem(unsigned int semNum, int semId, int incremental)
@@ -303,67 +277,15 @@ void setSem(unsigned int semNum, int semId, int incremental)
     }
 }
 
-void unallocateSem(bool skipLog)
-{
-    int semId = getSemId();
-    int semDeleteResult = semctl(semId, 0, IPC_RMID, 0);
-    if (semDeleteResult == -1 && skipLog == false)
-    {
-        throwException("Error during sem unallocation! Shm not deleted!");
-    }
-}
-
-int allocateMsgQueue()
-{
-    key_t msqKey = getKey();
-    int msqId = msgget(msqKey, IPC_CREAT | READ_CLEARANCE);
-    if (msqId == -1)
-    {
-        throwException("allocateMsgQueue");
-    }
-    return msqId;
-}
-
 int getMsgQueueId(bool skipEEXISTError)
 {
     key_t msqKey = getKey();
-    int msqId = msgget(msqKey, IPC_CREAT | READ_CLEARANCE);
-    if (msqId == -1 && (skipEEXISTError != true || errno != EEXIST))
+    int msqId = msgget(msqKey, READ_WRITE_CLEARANCE);
+    if (msqId == -1 && skipEEXISTError == false)
     {
         throwException("getMsgQueueId");
     }
     return msqId;
-}
-
-int sendMsgQueue(int msgType, char *message)
-{
-    message_buf msgBuf;
-    msgBuf.mtype = msgType;
-    sprintf(msgBuf.mtext, "%s", message);
-
-    int msqId = getMsgQueueId(false);
-    int msgsndRes = msgsnd(msqId, &msgBuf, sizeof(msgBuf.mtext), READ_CLEARANCE);
-    if (msgsndRes < 0)
-    {
-        throwException("sendMsgQueue");
-    }
-}
-
-int receiveMsgQueue(int msgType, char *receivedMessage)
-{
-    message_buf msgBuf;
-    int msqId = getMsgQueueId(false);
-    int msgRcvRes = msgrcv(msqId, &msgBuf, sizeof(msgBuf.mtext), msgType, READ_CLEARANCE);
-    if (msgRcvRes == -1 && errno != EIDRM)
-    {
-        printf("codice errore=%d\n", msgRcvRes);
-        throwException("receiveMsgQueue");
-    }
-    else if (errno == EIDRM)
-    {
-        return -1;
-    }
-    sprintf(receivedMessage, "%s", msgBuf.mtext);
 }
 
 void unallocateMsgQueue()
@@ -376,14 +298,55 @@ void unallocateMsgQueue()
     }
 }
 
-void endProgram(int i)
+int allocateMsgQueue()
 {
-    if ((int)getppid() == 1) // main process as parent pid = 1
+    key_t msqKey = getKey();
+    // unallocate if it exists
+    int msqId = msgget(msqKey, IPC_EXCL);
+    if (msqId == -1 && errno == EEXIST)
     {
-        unallocateShm(1);
-        unallocateSem(1);
+        unallocateMsgQueue();
+        printf("msg cancellata!\n");
     }
-    exit(0);
+    // allocating it
+    msqId = msgget(msqKey, IPC_CREAT | READ_WRITE_CLEARANCE);
+    if (msqId == -1)
+    {
+        throwException("allocateMsgQueue");
+    }
+    return msqId;
+}
+
+int sendMsgQueue(int msgType, char *message, bool skipEEXISTerror)
+{
+    message_buf msgBuf;
+    msgBuf.mtype = msgType;
+    sprintf(msgBuf.mtext, "%s", message);
+
+    int msqId = getMsgQueueId(skipEEXISTerror);
+    int msgsndRes = msgsnd(msqId, &msgBuf, sizeof(msgBuf.mtext), READ_WRITE_CLEARANCE);
+    if (msgsndRes == -1 && skipEEXISTerror == false)
+    {
+        throwException("sendMsgQueue");
+    }
+}
+
+int receiveMsgQueue(int msgType, char *receivedMessage, bool skipEEXISTerror)
+{
+    message_buf msgBuf;
+    int msqId = getMsgQueueId(skipEEXISTerror);
+    int msgRcvRes = msgrcv(msqId, &msgBuf, sizeof(msgBuf.mtext), msgType, READ_WRITE_CLEARANCE);
+    if (msgRcvRes == -1 && errno != EIDRM && skipEEXISTerror == false)
+    {
+        printf("invalid?1\n");
+        throwException("receiveMsgQueue");
+    }
+    else if (errno == EIDRM && skipEEXISTerror == false)
+    {
+        printf("invalid?2\n");
+        return -1;
+    }
+    sprintf(receivedMessage, "%s", msgBuf.mtext);
 }
 
 void randomSort(char *array[], size_t n, size_t size)
