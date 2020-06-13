@@ -1,8 +1,8 @@
 /*
-    Matricola: VR380626               
-    Nome e cognome: Giambattista Pomari
-    Data di realizzazione: 13/06/2020 
-    Titolo esercizio: Secono elaborato - UNIX System Call
+    Matricola:              VR380626               
+    Nome e cognome:         Giambattista Pomari
+    Data di realizzazione:  13/06/2020 
+    Titolo esercizio:       Secondo elaborato - UNIX System Call
 */
 
 #include "gioco-lib.c"
@@ -236,8 +236,8 @@ void sigTermHandler(int sig)
             {
                 printPlayerData(p);
             }
-        }
+        }   
     }
-    printf("\Gioco terminato. Arrivederci!\n");
+    printf("\nGioco terminato. Arrivederci!\n");
     exit(0);
 }
