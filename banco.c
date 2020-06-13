@@ -63,9 +63,9 @@ int main(int argc, char *argv[])
 void printTitle()
 {
     printf("\n");
-    printf("**************************************\n");
-    printf("****     BENVENUTI AL CASINO'     ****\n");
-    printf("**************************************\n");
+    printf("***************************************\n");
+    printf("****        GIOCO DEI DADI         ****\n");
+    printf("***************************************\n");
 }
 
 void connectPlayer(int dataId)
