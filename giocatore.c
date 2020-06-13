@@ -36,9 +36,7 @@ int main(int argc, char *argv[])
         printf("SIGQUIT install error\n");
         exit(2);
     }
-
-    srand(getpid());
-
+    
     waitMessageQueueInitialization();
 
     int dataId = lookUpGame();
@@ -69,7 +67,7 @@ void setupPlayer(int dataId)
 
     GameData *gameData = getGameData(false);
 
-    int startingMoney = randomValue((int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY);
+    int startingMoney = randomValue(getpid(), (int)MIN_INIT_PLAYER_MONEY, (int)MAX_INIT_PLAYER_MONEY);
     PlayerData pd;
     pd.dataId = dataId;
     pd.pid = getpid();
@@ -146,7 +144,7 @@ void play(int dataId)
             // betting between 1 and 50 percent of current money
             int minBetValue = (playerData->currentMoney * MIN_BET_PERCENTAGE) / 100;
             int maxBetValue = (playerData->currentMoney * MAX_BET_PERCENTAGE) / 100;
-            playerData->currentBet = randomValue(minBetValue, maxBetValue);
+            playerData->currentBet = randomValue(getpid() * minBetValue * maxBetValue, minBetValue, maxBetValue);
             playerData->currentBet = playerData->currentBet < 1 ? 1 : playerData->currentBet;
             playerData->currentBetPercentage = ((float)playerData->currentBet * 100) / ((float)playerData->currentMoney);
             nextPlayer(semId, playerData->semNum);
@@ -154,8 +152,8 @@ void play(int dataId)
         }
         case PLAY:
         {
-            playerData->firstDiceResult = randomValue(1, 6);
-            playerData->secondDiceResult = randomValue(1, 6);
+            playerData->firstDiceResult = randomValue(playerData->startingMoney * getpid(), 1, 6);
+            playerData->secondDiceResult = randomValue(playerData->startingMoney * playerData->firstDiceResult * getpid(), 1, 6);
             playerData->totalDiceResult = playerData->firstDiceResult + playerData->secondDiceResult;
             nextPlayer(semId, playerData->semNum);
             break;
@@ -211,7 +209,7 @@ void sigIntHandler(int sig)
             {
                 kill(p->pid, SIGTERM);
             }
-            else if (p->pid != 0)
+            else if (p->pid == myPid)
             {
                 printPlayerData(p);
             }
@@ -232,11 +230,12 @@ void sigTermHandler(int sig)
         for (int i = 0; i < MAX_DEFAULT_PLAYERS; i++)
         {
             PlayerData *p = gameData->playersData + i;
-            if (p->pid != myPid && p->pid != 0)
+            if (p->pid == myPid)
             {
                 printPlayerData(p);
+                break;
             }
-        }   
+        }
     }
     printf("\nGioco terminato. Arrivederci!\n");
     exit(0);

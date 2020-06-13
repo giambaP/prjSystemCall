@@ -116,9 +116,11 @@ key_t getKey()
     return key;
 }
 
-unsigned int randomValue(int rangeFrom, int rangeTo)
+unsigned int randomValue(int seed, int rangeFrom, int rangeTo)
 {
-    return (rand() % (rangeTo - rangeFrom + 1)) + rangeFrom;
+    int randValue = rand() * seed;
+    randValue = randValue > 0 ? randValue : rand();
+    return (randValue % (rangeTo - rangeFrom + 1)) + rangeFrom;
 }
 
 int getShmId(bool skipErrorLog)
